@@ -14,7 +14,9 @@ public class Triangle extends Polygon {
      * This constructor delegates to the {@link Polygon} constructor and ensures that
      * the three given points form a valid triangle.
      *
-     * @param vertices the three vertices defining the triangle
+     * @param a vertex defining the triangle
+     * @param b vertex defining the triangle
+     * @param c vertex defining the triangle
      * @throws IllegalArgumentException if the provided vertices violate the constraints
      *                                  enforced by {@link Polygon}'s constructor.
      */
