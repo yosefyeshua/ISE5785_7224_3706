@@ -11,14 +11,14 @@ public class Ray {
      * Represents the starting point (head) of the ray in 3-dimensional space.
      * This is the origin point from which the ray extends infinitely in its direction.
      */
-    public Point head;
+    private final Point head;
 
     /**
      * Represents the direction vector of the ray.
      * This vector specifies the direction in which the ray extends from its starting point.
      * The direction vector is normalized and cannot be a zero vector.
      */
-    public Vector direction;
+    final Vector direction;
 
     /**
      * Constructs a {@code Ray} object using a starting point (head) and a direction vector.
@@ -31,6 +31,24 @@ public class Ray {
     public Ray(Point head, Vector direction) {
         this.head = head;
         this.direction = direction.normalize();
+    }
+
+    /**
+     * Gets the head of the ray
+     *
+     * @return point which is the head of the ray
+     */
+    public Point getHead() {
+        return head;
+    }
+
+    /**
+     * Gets the direction of the ray
+     *
+     * @return vector which is direction of ray axis
+     */
+    public Vector getDirection() {
+        return direction;
     }
 
     @Override
