@@ -2,6 +2,7 @@ package geometries;
 
 import primitives.Point;
 import primitives.Ray;
+import primitives.Util;
 import primitives.Vector;
 
 /**
@@ -31,7 +32,20 @@ public class Cylinder extends Tube {
 
     @Override
     public Vector getNormal(Point point) {
-        return null;
+        if (point.equals(this.axis.getHead())) {
+            return this.axis.getDirection().scale(-1);
+        }
+        Vector u = point.subtract(this.axis.getHead());
+        double t = this.axis.getDirection().dotProduct(u);
+
+        if (Util.isZero(t))
+            return this.axis.getDirection().scale(-1);
+        else if (Util.isZero(t - height)) {
+            return this.axis.getDirection();
+        }
+        else {
+            return super.getNormal(point);
+        }
     }
 }
 
