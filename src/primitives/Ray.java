@@ -11,14 +11,14 @@ public class Ray {
      * Represents the starting point (head) of the ray in 3-dimensional space.
      * This is the origin point from which the ray extends infinitely in its direction.
      */
-    private Point head;
+    private final Point head;
 
     /**
      * Represents the direction vector of the ray.
      * This vector specifies the direction in which the ray extends from its starting point.
      * The direction vector is normalized and cannot be a zero vector.
      */
-    private Vector direction;
+    final Vector direction;
 
     /**
      * Constructs a {@code Ray} object using a starting point (head) and a direction vector.
