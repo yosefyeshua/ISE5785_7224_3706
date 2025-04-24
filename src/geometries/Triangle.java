@@ -21,5 +21,8 @@ public class Triangle extends Polygon {
     public Triangle(Point... vertices) {
         super(vertices);
     }
+
+
+
 }
 
