@@ -18,8 +18,8 @@ public class Triangle extends Polygon {
      * @throws IllegalArgumentException if the provided vertices violate the constraints
      *                                  enforced by {@link Polygon}'s constructor.
      */
-    public Triangle(Point... vertices) {
-        super(vertices);
+    public Triangle(Point a, Point b, Point c) {
+        super(a,b,c);
     }
 
 

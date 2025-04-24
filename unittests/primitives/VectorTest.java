@@ -68,6 +68,12 @@ class VectorTest {
         Vector expected = new Vector(2, 4, 6);
         assertEquals(expected, v.scale(2), "TC01: Scaling by 2 should return (2, 4, 6)");
 
+
+        // TC02: Scaling vector by a negative scalar
+        Vector v2 = new Vector(1, 2, 3);
+        Vector expected2 = new Vector(-2, -4, -6);
+        assertEquals(expected2, v2.scale(-2), "TC01: Scaling by -2 should return (-2, -4, -6)");
+
         // =============== Boundary Values Tests ==================
 
         // TC02: Scaling by 0 (should throw)
