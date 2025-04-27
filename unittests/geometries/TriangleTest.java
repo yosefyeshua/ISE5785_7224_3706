@@ -14,9 +14,12 @@ class TriangleTest {
     void testGetNormal() {
         // ============ Equivalence Partitions Tests ==============
         // TC01: There is a simple single test here - using a quad
+        Point a = new Point(0, 0, 1);
+        Point b = new Point(1, 0, 0);
+        Point c = new Point(0, 1, 0);
         Point[] pts =
-                { new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0)};
-        Triangle tri = new Triangle(pts);
+                { a, b, c};
+        Triangle tri = new Triangle(a,b,c);
         // ensure there are no exceptions
         assertDoesNotThrow(() -> tri.getNormal(new Point(0, 0, 1)), "");
         // generate the test result
