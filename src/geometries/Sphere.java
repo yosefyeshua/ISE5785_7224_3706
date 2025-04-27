@@ -1,7 +1,10 @@
 package geometries;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
+
+import java.util.List;
 
 /**
  * The {@code Sphere} class represents a three-dimensional sphere in a Cartesian coordinate system.
@@ -25,6 +28,11 @@ public class Sphere extends RadialGeometry {
     public Sphere(double radius, Point center) {
         super(radius);
         this.center = center;
+    }
+
+    @Override
+    public List<Point> findIntersections (Ray ray) {
+        return null;
     }
 
     @Override

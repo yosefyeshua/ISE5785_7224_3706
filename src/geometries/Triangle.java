@@ -1,6 +1,9 @@
 package geometries;
 
 import primitives.Point;
+import primitives.Ray;
+
+import java.util.List;
 
 /**
  * The {@code Triangle} class represents a two-dimensional triangle in a 3D Cartesian coordinate system.
@@ -20,6 +23,11 @@ public class Triangle extends Polygon {
      */
     public Triangle(Point... vertices) {
         super(vertices);
+    }
+
+    @Override
+    public List<Point> findIntersections (Ray ray) {
+        return null;
     }
 
 

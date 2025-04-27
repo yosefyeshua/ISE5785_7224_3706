@@ -8,7 +8,7 @@ import primitives.Vector;
  * It serves as the foundation for defining geometric entities and enforces
  * the implementation of a method to compute normal vectors at given points.
  */
-public abstract class Geometry {
+public abstract class Geometry implements Intersectable {
 
     /**
      * Computes and returns the normal vector at a given point on the geometric object.

@@ -4,6 +4,8 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.List;
+
 /**
  * The {@code Tube} class represents an infinite cylindrical surface in three-dimensional space.
  * It extends {@link RadialGeometry} by defining a central axis around which the tube is symmetrically constructed.
@@ -30,6 +32,11 @@ public class Tube extends RadialGeometry {
         double t = this.axis.getDirection().dotProduct(u);
         Point O = t != 0 ? this.axis.getHead().add(this.axis.getDirection().scale(t)) : this.axis.getHead();
         return point.subtract(O).normalize();
+    }
+
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
     }
 }
 
