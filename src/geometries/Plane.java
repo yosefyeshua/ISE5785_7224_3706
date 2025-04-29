@@ -58,7 +58,6 @@ public class Plane extends Geometry {
         this.normal = v1.crossProduct(v2).normalize();
     }
 
-
     @Override
     public List<Point> findIntersections (Ray ray) {
         Vector n = this.normal;

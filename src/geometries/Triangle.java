@@ -28,16 +28,6 @@ public class Triangle extends Polygon {
         super(a,b,c);
     }
 
-    /**
-     * Finds the intersection point between the given {@link Ray} and this triangle.
-     * <p>
-     * First computes the intersection with the triangle’s supporting plane. If an intersection
-     * exists, it then checks whether the point lies inside the triangle using vector cross products
-     * and consistent sign tests.
-     *
-     * @param ray the ray to intersect with the triangle
-     * @return a list containing the intersection point if it lies inside the triangle; {@code null} otherwise
-     */
     @Override
     public List<Point> findIntersections (Ray ray) {
         List<Point> intersections = this.plane.findIntersections(ray);

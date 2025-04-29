@@ -24,4 +24,8 @@ class TubeTest {
         // TC02: Test P-P0 is orthogonal to the axis
         assertEquals(new Vector(0, 0, 1), t.getNormal(new Point(0, 0, 1)), "Normal to tube is incorrect");
     }
+
+    @Test
+    void findIntersections() {
+    }
 }

@@ -26,6 +26,11 @@ public class Tube extends RadialGeometry {
         this.axis = axis;
     }
 
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
+    }
+
     /**
      * Returns the normal vector of the tube at a given point.
      *
@@ -37,11 +42,6 @@ public class Tube extends RadialGeometry {
         double t = this.axis.getDirection().dotProduct(u);
         Point O = t != 0 ? this.axis.getPoint(t) : this.axis.getHead();
         return point.subtract(O).normalize();
-    }
-
-    @Override
-    public List<Point> findIntersections(Ray ray) {
-        return null;
     }
 }
 
