@@ -59,6 +59,7 @@ public class Plane extends Geometry {
     }
 
 
+    @Override
     public List<Point> findIntersections (Ray ray) {
         Vector n = this.normal;
         Point Q = this.q;
@@ -78,7 +79,7 @@ public class Plane extends Geometry {
             return null;
         }
 
-        return List.of(P0.add(v.scale(t)));
+        return List.of(ray.getPoint(t));
     }
 
     /**

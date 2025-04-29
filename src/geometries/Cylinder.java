@@ -37,6 +37,11 @@ public class Cylinder extends Tube {
         return null;
     }
 
+    /**
+     * Returns the normal vector of the cylinder at a given point.
+     *
+     * @return the unit normal vector to the cylinder at a given point
+     */
     @Override
     public Vector getNormal(Point point) {
         if (point.equals(this.axis.getHead())) {

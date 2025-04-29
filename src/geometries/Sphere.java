@@ -30,10 +30,19 @@ public class Sphere extends RadialGeometry {
         this.center = center;
     }
 
+    /**
+     * Finds the intersection point(s) between the given {@link Ray} and this sphere.
+     * <p>
+     * The method supports rays that start outside, inside, or at the center of the sphere.
+     * It returns only intersection points that lie in the direction of the ray.
+     *
+     * @param ray the ray to intersect with the sphere
+     * @return a list containing 1 or 2 intersection points (depending on the case), or {@code null} if there is no intersection
+     */
     @Override
     public List<Point> findIntersections (Ray ray) {
         if (this.center.equals(ray.getHead()))
-            return List.of(ray.getHead().add(ray.getDirection().scale(this.radius)));
+            return List.of(ray.getPoint(this.radius));
         Vector u = this.center.subtract(ray.getHead());
         double tm = ray.getDirection().dotProduct(u);
         double d = Math.sqrt(u.lengthSquared() - tm * tm);
@@ -44,15 +53,20 @@ public class Sphere extends RadialGeometry {
         double t1 = tm - th;
         double t2 = tm + th;
         if (t1 > 0 && t2 > 0) {
-            return List.of(ray.getHead().add(ray.getDirection().scale(t1)), ray.getHead().add(ray.getDirection().scale(t2)));
+            return List.of(ray.getPoint(t1), ray.getPoint(t2));
         } else if (t1 > 0) {
-            return List.of(ray.getHead().add(ray.getDirection().scale(t1)));
+            return List.of(ray.getPoint(t1));
         } else if (t2 > 0) {
-            return List.of(ray.getHead().add(ray.getDirection().scale(t2)));
+            return List.of(ray.getPoint(t2));
         }
         return null;
     }
 
+    /**
+     * Returns the normal vector of the sphere at a given point.
+     *
+     * @return the unit normal vector to the sphere at a given point
+     */
     @Override
     public Vector getNormal(Point point) {
         return point.subtract(this.center).normalize();

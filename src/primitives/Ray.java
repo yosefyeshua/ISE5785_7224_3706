@@ -1,5 +1,7 @@
 package primitives;
 
+import static primitives.Util.isZero;
+
 /**
  * The {@code Ray} class represents a ray in 3-dimensional space. It is defined by a starting point (head)
  * and a direction vector. The ray extends infinitely in the direction of the vector, and the direction vector
@@ -49,6 +51,20 @@ public class Ray {
      */
     public Vector getDirection() {
         return direction;
+    }
+
+    /**
+     * Calculates a point on the ray axis at a given distance from the head of the ray
+     *
+     * @param t distance from the head of the ray
+     * @return point on the ray axis at the given distance from the head of the ray
+     */
+    public Point getPoint(double t) {
+        if (isZero(t)) {
+            return head;
+        }
+
+        return t > 0 ? head.add(direction.scale(t)) : null;
     }
 
     @Override
