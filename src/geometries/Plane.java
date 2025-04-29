@@ -58,17 +58,6 @@ public class Plane extends Geometry {
         this.normal = v1.crossProduct(v2).normalize();
     }
 
-
-    /**
-     * Finds all intersection points between the given {@link Ray} and this plane.
-     * <p>
-     * The method calculates the intersection point of the ray with the plane, if it exists,
-     * and returns a list containing the intersection point. If the ray is parallel to the plane
-     * or the intersection is behind the ray's origin, the method returns {@code null}.
-     *
-     * @param ray the ray to intersect with the plane
-     * @return a list containing the intersection point, or {@code null} if there are none
-     */
     @Override
     public List<Point> findIntersections (Ray ray) {
         Vector n = this.normal;

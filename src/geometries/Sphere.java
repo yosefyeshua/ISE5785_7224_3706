@@ -30,15 +30,6 @@ public class Sphere extends RadialGeometry {
         this.center = center;
     }
 
-    /**
-     * Finds the intersection point(s) between the given {@link Ray} and this sphere.
-     * <p>
-     * The method supports rays that start outside, inside, or at the center of the sphere.
-     * It returns only intersection points that lie in the direction of the ray.
-     *
-     * @param ray the ray to intersect with the sphere
-     * @return a list containing 1 or 2 intersection points (depending on the case), or {@code null} if there is no intersection
-     */
     @Override
     public List<Point> findIntersections (Ray ray) {
         if (this.center.equals(ray.getHead()))

@@ -8,25 +8,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * The {@code Geometries} class represents a collection of geometric objects.
- * It implements the {@link Intersectable} interface, allowing intersection queries
- * with all contained geometries as a group.
+ * A composite geometry class that represents a collection of {@link Intersectable} objects.
  * <p>
- * This class supports adding multiple geometries and finding all intersection points
- * between a given {@link Ray} and the geometries in the collection.
+ * Provides functionality to add multiple geometries and to find all intersection points
+ * between a given {@link Ray} and the contained geometries.
  */
 public class Geometries implements Intersectable {
     private final List<Intersectable> geometries = new LinkedList<>();
 
-    /**
-     * Constructs an empty collection of geometries.
-     */
     public Geometries() {}
 
     /**
-     * Constructs a collection containing the specified geometries.
+     * Constructs a collection containing the given geometries.
      *
-     * @param geometries the geometries to add to the collection
+     * @param geometries the geometries to add
      */
     public Geometries(Intersectable... geometries) {
         add(geometries);
@@ -41,12 +36,6 @@ public class Geometries implements Intersectable {
         this.geometries.addAll(Arrays.asList(geometries));
     }
 
-    /**
-     * Finds all intersection points between the given {@link Ray} and the geometries in the collection.
-     *
-     * @param ray the ray to intersect with the geometries
-     * @return a list of intersection points, or {@code null} if there are none
-     */
     @Override
     public List<Point> findIntersections(Ray ray) {
         List<Point> intersections = null;
