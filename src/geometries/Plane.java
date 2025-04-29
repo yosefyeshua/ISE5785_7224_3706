@@ -2,6 +2,7 @@ package geometries;
 
 import primitives.Point;
 import primitives.Ray;
+import primitives.Util;
 import primitives.Vector;
 
 import java.util.List;
@@ -59,7 +60,25 @@ public class Plane extends Geometry {
 
 
     public List<Point> findIntersections (Ray ray) {
-        return null;
+        Vector n = this.normal;
+        Point Q = this.q;
+        Point P0 = ray.getHead();
+        Vector v = ray.getDirection();
+
+        double nv = n.dotProduct(v);
+        if (Util.isZero(nv)) {
+            return null;
+        }
+
+        Vector QminusP0 = Q.subtract(P0);
+        double nQminusP0 = n.dotProduct(QminusP0);
+        double t = Util.alignZero(nQminusP0 / nv);
+
+        if (t <= 0) {
+            return null;
+        }
+
+        return List.of(P0.add(v.scale(t)));
     }
 
     /**

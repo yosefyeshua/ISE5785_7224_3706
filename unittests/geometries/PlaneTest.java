@@ -2,8 +2,11 @@ package geometries;
 
 import org.junit.jupiter.api.Test;
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,5 +70,51 @@ class PlaneTest {
         // Check that normals are equal to expected normal of plane which is (0, 0, 1)
         assertTrue(result1.equals(expected1) || result1.equals(expected2), "Normal should orthogonal to the plane");
         assertTrue(result2.equals(expected1) || result2.equals(expected2), "Normal should orthogonal to the plane");
+    }
+
+    /** Test method for {@link geometries.Plane#findIntersections(Ray)}. */
+    @Test
+    void findIntersections() {
+        // ============ Equivalence Partitions Tests ==============
+        // TC01: Ray intersects plane (nor orthogonal or parallel)
+        Plane p = new Plane(new Point(1, 0, 0), new Point(0, 1, 0), new Point(1, 1, 0));
+        Ray ray = new Ray(new Point(0, 0, -1), new Vector(2, 2, 1));
+        List<Point> intersections = p.findIntersections(ray);
+
+        assertNotNull(intersections);
+        assertEquals(List.of(new Point(2, 2, 0)), intersections, "Ray must intersect plane exactly once");
+
+        // TC02: Ray does not intersect plane
+        ray = new Ray(new Point(0, 0, 1), new Vector(2, 2, 1));
+
+        assertNull(p.findIntersections(ray), "Ray must not intersect plane");
+
+        // ============ Boundary Values Tests ==============
+        // TC03: Ray is parallel to the plane (included in it)
+        ray = new Ray(new Point(0, -1, 0), new Vector(1, 0, 0));
+
+        assertNull(p.findIntersections(ray), "Should not return intersections for ray included in plane and parallel to it");
+
+        // TC04: Ray is parallel to the plane (not included in it)
+        ray = new Ray(new Point(0, 0, 1), new Vector(1, 0, 0));
+
+        assertNull(p.findIntersections(ray), "Should not return intersections for ray parallel to plane");
+
+        // TC05: Ray is orthogonal to plane and the head of the ray is in the plane
+        ray = new Ray(new Point(2, 2, 0), new Vector(0, 0, 1));
+
+        assertNull(p.findIntersections(ray), "Should not return intersections for ray orthogonal to plane and head of ray in plane");
+
+        // TC06: Ray is orthogonal to plane and the head of the ray is under the plane pointed towards the plane
+        ray = new Ray(new Point(2, 2, -1), new Vector(0, 0, 1));
+        intersections = p.findIntersections(ray);
+
+        assertNotNull(intersections);
+        assertEquals(List.of(new Point(2, 2, 0)), intersections, "Ray must intersect plane exactly once");
+
+        // TC07: Ray is orthogonal to plane and the head of the ray is above the plane pointed away from the plane
+        ray = new Ray(new Point(2, 2, 1), new Vector(0, 0, 1));
+
+        assertNull(p.findIntersections(ray), "Should not return intersections for ray orthogonal to plane and head of ray above plane pointed away from the plane");
     }
 }
