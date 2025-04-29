@@ -30,6 +30,8 @@ class TriangleTest {
         for (int i = 0; i <= 2; ++i)
             assertEquals(0d, result.dotProduct(pts[i].subtract(pts[i == 0 ? 2 : i - 1])), DELTA,
                     "triangle's normal is not orthogonal to one of the edges");
+        // ensure the result is orthogonal to all the edges
+
     }
 
 }
