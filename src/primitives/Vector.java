@@ -7,7 +7,9 @@ package primitives;
  * Vectors cannot be zero vectors; an exception is thrown when attempting to create a zero vector.
  */
 public class Vector extends Point {
-
+    public static final Vector AXIS_X = new Vector(1, 0, 0);
+    public static final Vector AXIS_Y = new Vector(0, 1, 0);
+    public static final Vector AXIS_Z = new Vector(0, 0, 1);
     /**
      * Constructs a {@code Vector} using three double values for its coordinates.
      * Throws an {@link IllegalArgumentException} if the vector is a zero vector (i.e., all components are zero).
@@ -129,4 +131,6 @@ public class Vector extends Point {
         if (this == o) return true;
         return o instanceof Vector other && super.equals(o);
     }
+
+
 }
