@@ -23,7 +23,8 @@ public class CameraIntersectionsIntegrationTests {
         int numOfIntersections = 0;
         for (int i = 0; i < camera.getWidth(); i++) {
             for (int j = 0; j < camera.getHeight(); j++) {
-                numOfIntersections += geometry.findIntersections(camera.constructRay(3, 3, j, i)).size();
+                var intersections = geometry.findIntersections(camera.constructRay(3, 3, j, i));
+                numOfIntersections += intersections == null ? 0 : intersections.size();
             }
         }
         assertEquals(expected, numOfIntersections, "Incorrect number of intersections");
@@ -42,7 +43,7 @@ public class CameraIntersectionsIntegrationTests {
 
         // TC01
         Sphere sphere = new Sphere(1, new Point(0, 0, -3));
-        countIntersections(camera1, sphere, 1);
+        countIntersections(camera1, sphere, 2);
 
         // TC02
         sphere = new Sphere(2.5, new Point(0, 0, -2.5));
