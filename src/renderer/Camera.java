@@ -26,6 +26,8 @@ public class Camera implements Cloneable{
     }
 
 
+    public double getWidth() {return width;}
+    public double getHeight() {return height;}
 
     public Ray constructRay(int nX, int nY, int j, int i){return null;}
 
@@ -80,8 +82,6 @@ public class Camera implements Cloneable{
         public Builder setResolution(int nX, int nY) {
             return this;
         }
-
-
 
         public Camera build(){
             String problem = "Missing render data";
