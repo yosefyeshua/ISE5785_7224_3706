@@ -2,6 +2,7 @@ package renderer;
 
 import primitives.Point;
 import primitives.Ray;
+import primitives.Util;
 import primitives.Vector;
 
 import java.util.MissingResourceException;
@@ -34,9 +35,9 @@ public class Camera implements Cloneable {
         double rX = width / nX;
         double xJ = (j - (nX - 1) / 2.0) * rX;
         double yI = -(i - (nY - 1) / 2.0) * rY;
-        if (xJ != 0)
+        if (!Util.isZero(xJ))
             pIJ = pIJ.add(vRight.scale(xJ));
-        if (yI != 0)
+        if (!Util.isZero(yI))
             pIJ = pIJ.add(vUp.scale(yI));
         return new Ray(p0, pIJ.subtract(p0));
     }
