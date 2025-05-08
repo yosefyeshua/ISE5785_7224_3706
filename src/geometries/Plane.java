@@ -70,6 +70,9 @@ public class Plane extends Geometry {
             return null;
         }
 
+        if (P0.equals(Q))
+            return null;
+
         Vector QminusP0 = Q.subtract(P0);
         double nQminusP0 = n.dotProduct(QminusP0);
         double t = Util.alignZero(nQminusP0 / nv);
@@ -89,6 +92,13 @@ public class Plane extends Geometry {
     public Vector getNormal() {
         return this.normal;
     }
+
+    /**
+     * Returns the reference point Q of the plane
+     *
+     * @return the reference point in the plane
+     */
+    public Point getQ() { return q; }
 
     @Override
     public Vector getNormal(Point point) {

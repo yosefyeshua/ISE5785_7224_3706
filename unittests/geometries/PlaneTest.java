@@ -116,5 +116,15 @@ class PlaneTest {
         ray = new Ray(new Point(2, 2, 1), new Vector(0, 0, 1));
 
         assertNull(p.findIntersections(ray), "Should not return intersections for ray orthogonal to plane and head of ray above plane pointed away from the plane");
+
+        // TC08: Ray neither parallel nor orthogonal to the plane and the head of the ray is in the plane
+        ray = new Ray(new Point(2, 2, 0), new Vector(0, 1, 1));
+
+        assertNull(p.findIntersections(ray), "Should not return intersections for ray neither orthogonal nor parallel to plane and head of ray is in plane");
+
+        // TC09: Ray is neither parallel nor orthogonal to the plane and the head of the ray is in reference point Q
+        ray = new Ray(p.getQ(), new Vector(0, 1, 1));
+
+        assertNull(p.findIntersections(ray), "Should not return intersections for ray neither orthogonal nor parallel to plane and head of ray is in reference point Q");
     }
 }
