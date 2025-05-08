@@ -14,7 +14,6 @@ public class Color {
     */
    private final Double3     rgb;
 
-
    /* setup of colors */
    /** Black color = (0,0,0) */
    public static final Color BLACK = new Color();
@@ -40,6 +39,14 @@ public class Color {
    public static final Color GREEN = new Color(0, 255, 0);
    /** Blue color = (0,0,255) */
    public static final Color BLUE = new Color(0, 0, 255);
+   /** Dark Blue color = (0,0,139) */
+   public static final Color DARK_BLUE = new Color(0, 0, 139);
+   /** Light Green color = (144,238,144) */
+   public static final Color LIGHT_GREEN = new Color(144, 238, 144);
+   /** Light Pink color = (255,182,193) */
+   public static final Color LIGHT_PINK = new Color(255, 182, 193);
+   /** Light Yellow color = (255,255,224) */
+   public static final Color LIGHT_YELLOW = new Color(255, 255, 224);
    /** Cyan color = (0,255,255) */
    public static final Color CYAN = new Color(0, 255, 255);
    /** Magenta color = (255,0,255) */
