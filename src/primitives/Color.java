@@ -14,8 +14,39 @@ public class Color {
     */
    private final Double3     rgb;
 
+
+   /* setup of colors */
    /** Black color = (0,0,0) */
    public static final Color BLACK = new Color();
+   /** White color = (255,255,255) */
+   public static final Color WHITE = new Color(255, 255, 255);
+   /** Gray color = (127,127,127) */
+   public static final Color GRAY  = new Color(127, 127, 127);
+   /** Dark Gray color = (64,64,64) */
+   public static final Color DARK_GRAY = new Color(64, 64, 64);
+   /** Light Gray color = (192,192,192) */
+   public static final Color LIGHT_GRAY = new Color(192, 192, 192);
+   /** Pink color = (255,192,203) */
+   public static final Color PINK = new Color(255, 192, 203);
+   /** Orange color = (255,165,0) */
+   public static final Color ORANGE = new Color(255, 165, 0);
+   /** Brown color = (165,42,42) */
+   public static final Color BROWN = new Color(165, 42, 42);
+   /** Light Blue color = (173,216,230) */
+   public static final Color LIGHT_BLUE = new Color(173, 216, 230);
+   /** Red color = (255,0,0) */
+   public static final Color RED = new Color(255, 0, 0);
+   /** Green color = (0,255,0) */
+   public static final Color GREEN = new Color(0, 255, 0);
+   /** Blue color = (0,0,255) */
+   public static final Color BLUE = new Color(0, 0, 255);
+   /** Cyan color = (0,255,255) */
+   public static final Color CYAN = new Color(0, 255, 255);
+   /** Magenta color = (255,0,255) */
+   public static final Color MAGENTA = new Color(255, 0, 255);
+   /** Yellow color = (255,255,0) */
+   public static final Color YELLOW = new Color(255, 255, 0);
+
 
    /** Default constructor - to generate Black Color (privately) */
    private Color() { rgb = Double3.ZERO; }
