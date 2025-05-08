@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import geometries.Plane;
-import geometries.Polygon;
 import primitives.*;
 
 /**
@@ -101,5 +99,37 @@ class PolygonTests {
         assertNotNull(intersections);
         assertEquals(1, intersections.size(), "Should have one intersection");
         assertEquals(List.of(new Point(3, 3, 1)), intersections, "Incorrect intersection");
+        
+        // TC02: Ray is outside the polygon opposite a side
+        ray = new Ray(new Point(0, 4, 0), new Vector(0, 0, 1));
+        intersections = P.findIntersections(ray);
+
+        assertNull(intersections, "Should not return intersections");
+
+        // TC03: Ray is outside the polygon opposite a vertex
+        ray = new Ray(new Point(6, 6, 0), new Vector(0, 0, 1));
+        intersections = P.findIntersections(ray);
+
+        assertNull(intersections, "Should not return intersections");
+
+
+        // ============ Boundary Values Tests ==============
+        // TC04: Ray intersects a side of the polygon
+        ray = new Ray(new Point(1, 4, 0), new Vector(0, 0, 1));
+        intersections = P.findIntersections(ray);
+
+        assertNull(intersections, "Should not return intersections");
+
+        // TC05: Ray intersects a vertex
+        ray = new Ray(new Point(5, 5, 0), new Vector(0, 0, 1));
+        intersections = P.findIntersections(ray);
+
+        assertNull(intersections, "Should not return intersections");
+
+        // TC06: Ray intersects a continuation of one of the sides
+        ray = new Ray(new Point(5, 6, 0), new Vector(0, 0, 1));
+        intersections = P.findIntersections(ray);
+
+        assertNull(intersections, "Should not return intersections");
     }
 }

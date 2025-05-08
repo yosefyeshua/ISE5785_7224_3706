@@ -81,8 +81,5 @@ class TriangleTest {
         intersections = T.findIntersections(ray);
 
         assertNull(intersections, "Should not return intersections");
-
-
-
     }
 }

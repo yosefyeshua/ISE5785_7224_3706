@@ -19,6 +19,7 @@ public class Camera implements Cloneable {
     private double width;
     private double height;
     private double distance;
+    private Point pIJ;
 
     /**
      * Constructs a ray through a specific pixel on the view plane.
@@ -30,16 +31,16 @@ public class Camera implements Cloneable {
      * @return Ray from the camera through the pixel
      */
     public Ray constructRay(int nX, int nY, int j, int i) {
-        Point pIJ = p0.add(vTo.scale(distance));
+        Point pij = pIJ;
         double rY = height / nY;
         double rX = width / nX;
         double xJ = (j - (nX - 1) / 2.0) * rX;
         double yI = -(i - (nY - 1) / 2.0) * rY;
         if (!Util.isZero(xJ))
-            pIJ = pIJ.add(vRight.scale(xJ));
+            pij = pij.add(vRight.scale(xJ));
         if (!Util.isZero(yI))
-            pIJ = pIJ.add(vUp.scale(yI));
-        return new Ray(p0, pIJ.subtract(p0));
+            pij = pij.add(vUp.scale(yI));
+        return new Ray(p0, pij.subtract(p0));
     }
 
     /**
@@ -64,11 +65,6 @@ public class Camera implements Cloneable {
      */
     public static Builder getBuilder() {
         return new Builder();
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     /**
@@ -185,8 +181,10 @@ public class Camera implements Cloneable {
                 throw new MissingResourceException(problem, name, "camera distance");
             if (camera.vRight == null)
                 camera.vRight = camera.vTo.crossProduct(camera.vUp).normalize();
+            camera.pIJ = camera.p0.add(camera.vTo.scale(camera.distance));
 
             try {
+
                 return (Camera) camera.clone();
             } catch (CloneNotSupportedException e) {
                 throw new RuntimeException(e);

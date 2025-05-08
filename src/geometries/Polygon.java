@@ -1,6 +1,7 @@
 package geometries;
 
-   import static java.lang.Double.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import static primitives.Util.*;
 import primitives.*;
@@ -82,6 +83,46 @@ public class Polygon extends Geometry {
 
    @Override
    public List<Point> findIntersections(Ray ray) {
+      List<Point> intersections = this.plane.findIntersections(ray);
+
+      if (intersections == null) {
+         return null;
+      }
+
+      Point p0 = ray.getHead();
+
+      Vector v = ray.getDirection();
+      List<Vector> vectors = new ArrayList<>();
+       for (Point vertex : vertices) {
+           vectors.add(vertex.subtract(p0));
+       }
+
+      List<Vector> normals = new ArrayList<>();
+      for (int i = 0; i < vectors.size() - 1; ++i) {
+         normals.add(vectors.get(i).crossProduct(vectors.get(i + 1)));
+      }
+      normals.add(vectors.getLast().crossProduct(vectors.getFirst()));
+
+      double[] doubles = new double[normals.size()];
+      for (int i = 0; i < normals.size(); ++i) {
+         doubles[i] = v.dotProduct(normals.get(i));
+      }
+
+      boolean flag1 = true;
+      boolean flag2 = true;
+       for (double aDouble : doubles) {
+           if (aDouble <= 0) {
+               flag1 = false;
+           }
+           if (aDouble >= 0) {
+               flag2 = false;
+           }
+       }
+
+      if (flag1 || flag2) {
+         return intersections;
+      }
+
       return null;
    }
 }
