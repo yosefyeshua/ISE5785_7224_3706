@@ -1,10 +1,14 @@
 package renderer;
 
+import primitives.Color;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Util;
 import primitives.Vector;
+import scene.Scene;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.util.MissingResourceException;
 
 /**
@@ -56,6 +60,13 @@ public class Camera implements Cloneable {
      */
     private Point pIJ;
 
+    private ImageWriter imageWriter;
+
+    private RayTracerBase rayTracer;
+
+    private int nX = 1;
+    private int nY = 1;
+
     /**
      * Constructs a ray from the camera through a specific pixel on the view plane.
      *
@@ -104,6 +115,37 @@ public class Camera implements Cloneable {
      */
     public static Builder getBuilder() {
         return new Builder();
+    }
+
+    public Camera renderImage() {
+        for (int i = 0; i < nX; i++) {
+            for (int j = 0; j < nY; j++) {
+                castRay(nX, nY, i, j);
+            }
+        }
+        return this;
+    }
+
+    public Camera printGrid(int interval, Color color) {
+        for (int i = 0; i < nX; i++) {
+            for (int j = 0; j < nY; j++) {
+                if (i % interval == 0 || j % interval == 0) {
+                    imageWriter.writePixel(j, i, color);
+                }
+            }
+        }
+        return this;
+    }
+
+    public Camera writeToImage(String filename) {
+        imageWriter.writeToImage(filename);
+        return this;
+    }
+
+    private void castRay(int Nx, int Ny, int column, int row) {
+        Ray ray = constructRay(Nx, Ny, row, column);
+        Color color = rayTracer.traceRay(ray);
+        imageWriter.writePixel(row, column, color);
     }
 
     /**
@@ -219,7 +261,16 @@ public class Camera implements Cloneable {
          * @return this builder instance for chaining
          */
         public Builder setResolution(int nX, int nY) {
-            // Currently unused — can be added later
+            camera.nX = nX;
+            camera.nY = nY;
+            return this;
+        }
+
+        public Builder setRayTracer(Scene scene, RayTracerType type) {
+            if (type == RayTracerType.SIMPLE)
+                camera.rayTracer = new SimpleRayTracer(scene);
+            else
+                camera.rayTracer = null;
             return this;
         }
 
@@ -245,6 +296,13 @@ public class Camera implements Cloneable {
 
             if (camera.vRight == null)
                 camera.vRight = camera.vTo.crossProduct(camera.vUp).normalize();
+
+            if (camera.nX <= 0 || camera.nY <= 0)
+                throw new IllegalArgumentException("nX and nY must be positive");
+            camera.imageWriter = new ImageWriter(camera.nX, camera.nY);
+
+            if (camera.rayTracer == null)
+                camera.rayTracer = new SimpleRayTracer(null);
 
             camera.pIJ = camera.p0.add(camera.vTo.scale(camera.distance));
 

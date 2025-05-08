@@ -7,7 +7,7 @@ public class AmbientLight {
 
     public static final AmbientLight NONE = new AmbientLight(Color.BLACK);
 
-    AmbientLight(Color intensity) {
+    public AmbientLight(Color intensity) {
         this.intensity = intensity;
     }
 
