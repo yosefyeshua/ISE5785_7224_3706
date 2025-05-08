@@ -1,5 +1,7 @@
 package primitives;
 
+import java.util.List;
+
 import static primitives.Util.isZero;
 
 /**
@@ -65,6 +67,19 @@ public class Ray {
         }
 
         return t > 0 ? head.add(direction.scale(t)) : null;
+    }
+
+    public Point findClosestPoint(List<Point> points) {
+        if (points.isEmpty())
+            return null;
+
+        Point closestPoint = points.getFirst();
+        for (Point point : points) {
+            if (point.distance(this.head) < closestPoint.distance(this.head)) {
+                closestPoint = point;
+            }
+        }
+        return closestPoint;
     }
 
     @Override
