@@ -7,8 +7,6 @@ import primitives.Util;
 import primitives.Vector;
 import scene.Scene;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.util.MissingResourceException;
 
 /**
@@ -60,11 +58,24 @@ public class Camera implements Cloneable {
      */
     private Point pIJ;
 
+    /**
+     * The {@link ImageWriter} used to write pixel data.
+     */
     private ImageWriter imageWriter;
 
+    /**
+     * The ray tracer that determines the color for each ray.
+     */
     private RayTracerBase rayTracer;
 
+    /**
+     * The horizontal resolution of the image (number of pixels along X-axis).
+     */
     private int nX = 1;
+
+    /**
+     * The vertical resolution of the image (number of pixels along Y-axis).
+     */
     private int nY = 1;
 
     /**
@@ -117,6 +128,10 @@ public class Camera implements Cloneable {
         return new Builder();
     }
 
+    /**
+     * Renders the image using the set {@link ImageWriter} and {@link RayTracerBase}.
+     * Calculates color for each pixel by casting rays through it.
+     */
     public Camera renderImage() {
         for (int i = 0; i < nX; i++) {
             for (int j = 0; j < nY; j++) {
@@ -126,6 +141,13 @@ public class Camera implements Cloneable {
         return this;
     }
 
+    /**
+     * Draws a grid over the rendered image.
+     *
+     * @param interval spacing of the grid lines
+     * @param color color of the grid
+     * @return the camera instance for chaining
+     */
     public Camera printGrid(int interval, Color color) {
         for (int i = 0; i < nX; i++) {
             for (int j = 0; j < nY; j++) {
@@ -137,11 +159,25 @@ public class Camera implements Cloneable {
         return this;
     }
 
+    /**
+     * Saves the image to a file.
+     *
+     * @param filename name of the file
+     * @return the camera instance for chaining
+     */
     public Camera writeToImage(String filename) {
         imageWriter.writeToImage(filename);
         return this;
     }
 
+    /**
+     * Casts a ray through a pixel, traces its color, and writes it to the image.
+     *
+     * @param Nx horizontal resolution
+     * @param Ny vertical resolution
+     * @param column pixel column index
+     * @param row pixel row index
+     */
     private void castRay(int Nx, int Ny, int column, int row) {
         Ray ray = constructRay(Nx, Ny, row, column);
         Color color = rayTracer.traceRay(ray);
@@ -160,9 +196,12 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Builder class for constructing {@link Camera} instances using a fluent API.
+     * Builder class for {@link Camera} objects, using the builder pattern.
      */
     public static class Builder {
+        /**
+         * Internal camera being constructed
+         */
         private final Camera camera = new Camera();
 
         /**
@@ -266,6 +305,13 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Sets the {@link RayTracerBase} implementation for the camera.
+         *
+         * @param scene the scene to trace
+         * @param type the ray tracer type to use
+         * @return this builder instance for chaining
+         */
         public Builder setRayTracer(Scene scene, RayTracerType type) {
             if (type == RayTracerType.SIMPLE)
                 camera.rayTracer = new SimpleRayTracer(scene);
