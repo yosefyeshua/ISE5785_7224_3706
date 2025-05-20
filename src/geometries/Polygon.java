@@ -82,7 +82,7 @@ public class Polygon extends Geometry {
    public Vector getNormal(Point point) { return plane.getNormal(point); }
 
    @Override
-   public List<Point> findIntersections(Ray ray) {
+   protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
       List<Point> intersections = this.plane.findIntersections(ray);
 
       if (intersections == null) {
@@ -120,7 +120,7 @@ public class Polygon extends Geometry {
        }
 
       if (flag1 || flag2) {
-         return intersections;
+         return List.of(new Intersection(this, intersections.getFirst()));
       }
 
       return null;

@@ -27,7 +27,7 @@ public class Tube extends RadialGeometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
         return null;
         /** Calculate the vector from the tube's axis to the ray's head
         Vector u = ray.getHead().subtract(this.axis.getHead());

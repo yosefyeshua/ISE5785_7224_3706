@@ -30,10 +30,22 @@ public class Sphere extends RadialGeometry {
         this.center = center;
     }
 
+    /**
+     * Constructs a {@code Sphere} with a given radius and center.
+     * A sphere is defined by a single point (its center) and a radius extending uniformly in all directions.
+     *
+     * @param radius the radius of the sphere; must be positive
+     * @param center the center of the sphere
+     */
+    public Sphere(Point center, double radius) {
+        super(radius);
+        this.center = center;
+    }
+
     @Override
-    public List<Point> findIntersections (Ray ray) {
+    protected List<Intersection> calculateIntersectionsHelper (Ray ray) {
         if (this.center.equals(ray.getHead()))
-            return List.of(ray.getPoint(this.radius));
+            return List.of(new Intersection(this, ray.getPoint(this.radius)));
         Vector u = this.center.subtract(ray.getHead());
         double tm = ray.getDirection().dotProduct(u);
         double d = Math.sqrt(u.lengthSquared() - tm * tm);
@@ -44,11 +56,11 @@ public class Sphere extends RadialGeometry {
         double t1 = tm - th;
         double t2 = tm + th;
         if (t1 > 0 && t2 > 0) {
-            return List.of(ray.getPoint(t1), ray.getPoint(t2));
+            return List.of(new Intersection(this, ray.getPoint(t1)),new Intersection(this,  ray.getPoint(t2)));
         } else if (t1 > 0) {
-            return List.of(ray.getPoint(t1));
+            return List.of(new Intersection(this, ray.getPoint(t1)));
         } else if (t2 > 0) {
-            return List.of(ray.getPoint(t2));
+            return List.of(new Intersection(this, ray.getPoint(t2)));
         }
         return null;
     }
