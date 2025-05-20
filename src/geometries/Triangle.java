@@ -29,7 +29,7 @@ public class Triangle extends Polygon {
     }
 
     @Override
-    public List<Point> findIntersections (Ray ray) {
+    protected List<Intersection> calculateIntersectionsHelper (Ray ray) {
         List<Point> intersections = this.plane.findIntersections(ray);
         if (intersections == null) {
             return null;
@@ -55,7 +55,7 @@ public class Triangle extends Polygon {
 
         if ((sign1 > 0 && sign2 > 0 && sign3 > 0) ||
                 (sign1 < 0 && sign2 < 0 && sign3 < 0)) {
-            return intersections;
+            return List.of(new Intersection(this, intersections.getFirst()));
         }
 
         return null;

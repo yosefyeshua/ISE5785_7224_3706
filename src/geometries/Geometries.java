@@ -1,6 +1,5 @@
 package geometries;
 
-import primitives.Point;
 import primitives.Ray;
 
 import java.util.Arrays;
@@ -13,7 +12,7 @@ import java.util.List;
  * Provides functionality to add multiple geometries and to find all intersection points
  * between a given {@link Ray} and the contained geometries.
  */
-public class Geometries implements Intersectable {
+public class Geometries extends Intersectable {
     private final List<Intersectable> geometries = new LinkedList<>();
 
     public Geometries() {}
@@ -37,10 +36,10 @@ public class Geometries implements Intersectable {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        List<Point> intersections = null;
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+        List<Intersection> intersections = null;
         for (Intersectable geometry : geometries) {
-            List<Point> intersectionsByGeometry = geometry.findIntersections(ray);
+            var intersectionsByGeometry = geometry.calculateIntersections(ray);
             if (intersectionsByGeometry != null) {
                 if (intersections == null) {
                     intersections = new LinkedList<>();
