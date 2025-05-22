@@ -57,7 +57,7 @@ class RenderTests {
     * bodies and render it into a png image with a grid
     */
    @Test
-   void renderMultiColorTest() {
+   void renderMultiColorTestOne() {
       Scene scene = new Scene("Multi color").setAmbientLight(new AmbientLight(new Color(51, 51, 51)));
       scene.geometries //
          .add(// center
@@ -79,6 +79,31 @@ class RenderTests {
          .renderImage() //
          .printGrid(100, new Color(WHITE)) //
          .writeToImage("color render test");
+   }
+
+   @Test
+   void renderMultiColorTestTwo() {
+      Scene scene = new Scene("Multi color").setAmbientLight(new AmbientLight(Color.WHITE));
+      scene.geometries //
+              .add(// center
+                      new Sphere(new Point(0, 0, -100), 50).setMaterial(new Material(new Double3(0.4))),
+                      // up left
+                      new Triangle(new Point(-100, 0, -100), new Point(0, 100, -100), new Point(-100, 100, -100))
+                              .setMaterial(new Material(new Double3(0, 0.8, 0))),
+                      // down left
+                      new Triangle(new Point(-100, 0, -100), new Point(0, -100, -100), new Point(-100, -100, -100))
+                              .setMaterial(new Material(new Double3(0.8, 0, 0))),
+                      // down right
+                      new Triangle(new Point(100, 0, -100), new Point(0, -100, -100), new Point(100, -100, -100))
+                              .setMaterial(new Material(new Double3(0, 0, 0.8))));
+
+      camera //
+              .setRayTracer(scene, RayTracerType.SIMPLE) //
+              .setResolution(1000, 1000) //
+              .build() //
+              .renderImage() //
+              .printGrid(100, new Color(WHITE)) //
+              .writeToImage("color render test with kA");
    }
 
    /** Test for XML based scene - for bonus */
