@@ -2,6 +2,7 @@ package renderer;
 
 import static java.awt.Color.*;
 
+import geometries.Polygon;
 import org.junit.jupiter.api.Test;
 
 import geometries.Sphere;
