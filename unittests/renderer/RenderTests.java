@@ -2,6 +2,7 @@ package renderer;
 
 import static java.awt.Color.*;
 
+import geometries.Polygon;
 import org.junit.jupiter.api.Test;
 
 import geometries.Sphere;
@@ -24,6 +25,29 @@ class RenderTests {
       .setVpDistance(100) //
       .setVpSize(500, 500);
 
+
+   /**
+    * Produce a scene with basic 3D model and render it into a png image
+    * In this  scene we have a house which mean a polygon and triangle
+    */
+   @Test
+   public void yosefTset(){
+      Scene scene= new Scene("house").setBackground(Color.LIGHT_BLUE)
+         .setAmbientLight(new AmbientLight(Color.LIGHT_GRAY));
+      scene.geometries
+              .add(
+                        new Polygon(new Point(-50, -50, -100), new Point(-50, 50, -100), new Point(50, 50, -100), new Point(50, -50, -100)),
+                        new Triangle(new Point(-50, 50, -100), new Point(50, 50, -100), new Point(150, 0, -100)),
+                        new Sphere(50,new Point(-200, 200, -100))
+              );
+        camera //
+            .setRayTracer(scene, RayTracerType.SIMPLE) //
+            .setResolution(1000, 1000) //
+            .build() //
+            .renderImage() //
+            .printGrid(100, new Color(YELLOW)) //
+            .writeToImage("building test");
+   }
    /**
     * Produce a scene with basic 3D model and render it into a png image with a
     * grid

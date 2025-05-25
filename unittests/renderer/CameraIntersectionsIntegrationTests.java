@@ -109,4 +109,6 @@ public class CameraIntersectionsIntegrationTests {
         triangle = new Triangle(new Point(0, 20, -2), new Point(1, -1, -2), new Point(-1, -1, -2));
         countIntersections(camera1, triangle, 2);
     }
+
+
 }
