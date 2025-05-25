@@ -1,8 +1,8 @@
 package renderer;
 
 import geometries.Intersectable.Intersection;
-import primitives.Color;
-import primitives.Ray;
+import lighting.LightSource;
+import primitives.*;
 import scene.Scene;
 
 import java.util.List;
@@ -50,5 +50,39 @@ public class SimpleRayTracer extends RayTracerBase {
     private Color calcColor(Intersection intersection) {
         return scene.ambientLight.getIntensity().scale(intersection.geometry.getMaterial().kA)
                 .add(intersection.geometry.getEmission());
+    }
+
+    public boolean preprocessIntersection(Intersection intersection, Vector v) {
+        intersection.v = v.normalize();
+        intersection.normal = intersection.geometry.getNormal(intersection.point);
+        intersection.vNormal = intersection.normal.dotProduct(v);
+        return !Util.isZero(intersection.vNormal);
+    }
+
+    public boolean setLightSource(Intersection intersection, LightSource lightSource) {
+        intersection.light = lightSource;
+        intersection.l = lightSource.getL(intersection.point);
+        intersection.lNormal = intersection.normal.dotProduct(intersection.l);
+        return !Util.isZero(intersection.lNormal);
+    }
+
+    private Color calcColorLocalEffects(Intersection intersection) {
+        return null;
+    }
+
+    private Double3 calcSpecular(Intersection intersection) {
+        Vector r = intersection.l.subtract(intersection.normal.scale(2 * intersection.lNormal));
+        Vector negV = intersection.v.scale(-1);
+        double vr = Util.alignZero(negV.dotProduct(r));
+        if (vr <= 0) {
+            return Double3.ZERO;
+        }
+        return intersection.geometry.getMaterial().kS.scale(Math.pow(vr, intersection.geometry.getMaterial().nShininess));
+
+    }
+
+    private Double3 calcDiffusive(Intersection intersection) {
+        double ln = Util.alignZero(intersection.lNormal);
+        return intersection.material.kD.scale(Math.abs(ln));
     }
 }

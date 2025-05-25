@@ -10,7 +10,7 @@ public class PointLight extends Light implements LightSource{
     private double kL = 0;
     private double kQ = 0;
 
-    protected PointLight(Color intensity, Point position) {
+    public PointLight(Color intensity, Point position) {
         super(intensity);
         this.position = position;
     }

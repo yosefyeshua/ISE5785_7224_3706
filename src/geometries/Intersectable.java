@@ -1,7 +1,10 @@
 package geometries;
 
+import lighting.LightSource;
+import primitives.Material;
 import primitives.Point;
 import primitives.Ray;
+import primitives.Vector;
 
 import java.util.List;
 
@@ -30,10 +33,23 @@ public abstract class Intersectable {
     public static class Intersection {
         public final Geometry geometry;
         public final Point point;
+        public final Material material;
+        public Vector normal;
+        public Vector v;
+        public double vNormal;
+        public LightSource light;
+        public Vector l;
+        public double lNormal;
 
-        public Intersection(Geometry geometry, Point point) {
+
+
+        public Intersection(Geometry geometry, Point point, Material material) {
+            if (geometry == null || point == null || material == null) {
+                throw new IllegalArgumentException("Geometry and point and material cannot be null");
+            }
             this.geometry = geometry;
             this.point = point;
+            this.material = material;
         }
 
         @Override
