@@ -32,7 +32,6 @@ class TubeTest {
         Tube t1 = new Tube(1, new Ray(new Point(0, 0, 1), new Vector(0, 0, 1)));
         Tube t2 = new Tube(2, new Ray(new Point(0, 0, 1), new Vector(0, 0, 1)));
         Tube ts2 = new Tube(Math.sqrt(2), new Ray(new Point(0, 0, 1), new Vector(0, 0, 1)));
-        Tube ts3 = new Tube(Math.sqrt(3), new Ray(new Point(0, 0, 1), new Vector(0, 0, 1)));
         Tube t4 = new Tube(4, new Ray(new Point(0, 0, 1), new Vector(0, 0, 1)));
         Tube ts5 = new Tube(Math.sqrt(5), new Ray(new Point(0, 0, 1), new Vector(0, 0, 1)));
         // ============ Equivalence Partitions Tests ==============
