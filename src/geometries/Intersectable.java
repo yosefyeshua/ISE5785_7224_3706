@@ -43,13 +43,10 @@ public abstract class Intersectable {
 
 
 
-        public Intersection(Geometry geometry, Point point, Material material) {
-            if (geometry == null || point == null || material == null) {
-                throw new IllegalArgumentException("Geometry and point and material cannot be null");
-            }
+        public Intersection(Geometry geometry, Point point) {
             this.geometry = geometry;
             this.point = point;
-            this.material = material;
+            this.material = geometry != null ? geometry.getMaterial() : null;
         }
 
         @Override
