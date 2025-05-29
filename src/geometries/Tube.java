@@ -70,11 +70,6 @@ public class Tube extends RadialGeometry {
         return intersections.isEmpty() ? null : intersections;
     }
 
-
-
-
-
-
     /**
      * Returns the normal vector of the tube at a given point.
      *

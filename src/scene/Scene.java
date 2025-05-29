@@ -35,7 +35,11 @@ public class Scene {
      */
     public Geometries geometries = new Geometries();
 
+    /**
+     * The collection of light sources present in the scene.
+     */
     public List<LightSource> lights = new LinkedList<>();
+
     /**
      * Constructs a new {@code Scene} with the given name.
      *
@@ -78,6 +82,12 @@ public class Scene {
         return this;
     }
 
+    /**
+     * Sets the lights of the scene.
+     *
+     * @param lights the {@link LightSource} collection to use
+     * @return the updated {@code Scene} instance (for chaining)
+     */
     public Scene setLights(List<LightSource> lights) {
         this.lights = lights;
         return this;
