@@ -298,7 +298,7 @@ class LightsTests {
         Point tubeCenter = new Point(20, 0,-100 );
         double tubeRadius = 30d;
         Geometry tube = new Tube(tubeRadius,new Ray(tubeCenter, new Vector(-1,1,0.5)))
-                 .setEmission(sphereColor).setMaterial(new Material().setKD(KD).setKS(KS).setNShininess(SHININESS));
+                 .setEmission(Color.ORANGE).setMaterial(new Material().setKD(KD).setKS(KS).setNShininess(SHININESS));
         scene1.geometries.add(tube);
 
         // Point Light
