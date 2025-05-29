@@ -264,6 +264,106 @@ class LightsTests {
               .renderImage()
               .writeToImage("TrianglesCustomTest");
    }
+   /**
+   * Produce a picture of a sphere lighted by a multi light
+   */
+   @Test
+   void sphereMulti() {
+       scene1.geometries.add(sphere);
+
+       // Point Light
+       scene1.lights.add(new PointLight(Color.YELLOW.scale(2), new Point(10,10 ,20)) //
+               .setKL(0.000000001).setKQ(0.000000002));
+
+       // Spot Light
+      Point spotLightPosition = new Point(0,-100 , 0);
+      scene1.lights.add(new SpotLight(Color.RED.scale(3), spotLightPosition,sphereCenter.subtract(spotLightPosition).add(new Vector(10,-10,30))) //
+              .setKL(0.00005).setKQ(0.000007));
+
+       // Directional Light
+       scene1.lights.add(new DirectionalLight(Color.GREEN.scale(5), new Vector(-1, 0, 1)));
+
+       camera1 //
+               .setResolution(500, 500) //
+               .build() //
+               .renderImage() //
+               .writeToImage("lightSphereMulti");
+   }
+
+   /**
+    * Produce a picture of a tube lighted by a multi light
+    */
+   @Test
+    void tubeMulti() {
+         Point tubeCenter = new Point(0, 0, -50);
+         double tubeRadius = 50d;
+         Geometry tube = new Tube(tubeRadius,new Ray(tubeCenter, new Vector(-1,1,0.5)))
+                .setEmission(sphereColor).setMaterial(new Material().setKD(KD).setKS(KS).setNShininess(SHININESS));
+         scene1.geometries.add(tube);
+
+         // Point Light
+         scene1.lights.add(new PointLight(Color.YELLOW.scale(2), new Point(10,10 ,20)) //
+                .setKL(0.0001).setKQ(0.002));
+
+            // Spot Light
+            Point spotLightPosition = new Point(0,-100 , 0);
+            scene1.lights.add(new SpotLight(Color.RED.scale(3), spotLightPosition,tubeCenter.subtract(spotLightPosition).add(new Vector(10,-10,30))) //
+                    .setKL(0.00005).setKQ(0.000007));
+            // Directional Light
+            scene1.lights.add(new DirectionalLight(Color.GREEN.scale(5), new Vector(-1, 0, 1)));
+
+
+
+         camera1 //
+                .setResolution(500, 500) //
+                .build() //
+                .renderImage() //
+                .writeToImage("lightTubeMulti");
+    }
+
+   /**
+    * Produce a picture of a tube and trigle and sphere lighted by a multi light
+    */
+   @Test
+    void tubeTriangleSphereMulti() {
+        Point tubeCenter = new Point(20, 0,-100 );
+        double tubeRadius = 30d;
+        Geometry tube = new Tube(tubeRadius,new Ray(tubeCenter, new Vector(-1,1,0.5)))
+                 .setEmission(sphereColor).setMaterial(new Material().setKD(KD).setKS(KS).setNShininess(SHININESS));
+        scene1.geometries.add(tube);
+
+        // Point Light
+        scene1.lights.add(new PointLight(Color.YELLOW.scale(2), new Point(10,10 ,20)) //
+                 .setKL(0.0001).setKQ(0.002));
+
+            // Spot Light
+            Point spotLightPosition = new Point(0,-100 , 0);
+            scene1.lights.add(new SpotLight(Color.RED.scale(3), spotLightPosition,tubeCenter.subtract(spotLightPosition).add(new Vector(10,-10,30))) //
+                  .setKL(0.00005).setKQ(0.000007));
+            // Directional Light
+            scene1.lights.add(new DirectionalLight(Color.GREEN.scale(5), new Vector(-1, 0, 1)));
+
+        // Triangle
+        Geometry triangle = new Triangle(vertices[0], vertices[1], vertices[2])
+                  .setMaterial(material);
+        scene1.geometries.add(triangle);
+
+        // Sphere
+        Geometry sphere = new Sphere(sphereCenter, SPHERE_RADIUS)
+                  .setEmission(sphereColor).setMaterial(new Material().setKD(KD).setKS(KS).setNShininess(SHININESS));
+        scene1.geometries.add(sphere);
+        // Sphere light
+        scene1.lights.add(new PointLight(Color.DARK_BLUE, sphereLightPosition) //
+                  .setKL(0.001).setKQ(0.0002));
+
+
+        camera1 //
+                  .setResolution(500, 500) //
+                  .build() //
+                  .renderImage() //
+                  .writeToImage("lightTubeTriangleSphereMulti");
+    }
+
 
 //   /** Produce a picture of a sphere lighted by a narrow spotlight */
 //   @Test

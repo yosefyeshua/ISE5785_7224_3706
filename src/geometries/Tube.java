@@ -23,7 +23,7 @@ public class Tube extends RadialGeometry {
      * @param radius the radius of the tube; must be positive
      * @param axis the central axis of the tube, represented as a {@link Ray}
      */
-    protected Tube(double radius, Ray axis) {
+    public Tube(double radius, Ray axis) {
         super(radius);
         this.axis = axis;
     }
