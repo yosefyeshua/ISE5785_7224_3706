@@ -233,6 +233,37 @@ class LightsTests {
               .writeToImage("lightTrianglesSpot");
    }
 
+   @Test
+   void trianglesCustomTest() {
+      // Add the triangles
+      scene2.geometries.add(triangle1, triangle2);
+
+      // Red directional light from upper-left-back
+      scene2.lights.add(new DirectionalLight(
+              new Color(700, 0, 0),
+              new Vector(-1, -1, -1)));
+
+      // Green point light from bottom-right
+      scene2.lights.add(new PointLight(
+              new Color(0, 700, 0),
+              new Point(60, -60, -60))
+              .setKL(0.002).setKQ(0.0002));
+
+      Point centroid = new Point(-30, 22.67, -66.67);
+      Point lightPos = new Point(100, -100, -66.67);
+      // Blue spotlight from front-top-right aiming at triangle center
+      scene2.lights.add(new SpotLight(
+              new Color(0, 0, 700),
+              centroid.add(new Vector(0, 0, 30)),
+              centroid.subtract(lightPos).normalize())
+              .setKL(0.001).setKQ(0.0001));
+
+      // Build and render
+      camera2.setResolution(500, 500)
+              .build()
+              .renderImage()
+              .writeToImage("TrianglesCustomTest");
+   }
 
 //   /** Produce a picture of a sphere lighted by a narrow spotlight */
 //   @Test

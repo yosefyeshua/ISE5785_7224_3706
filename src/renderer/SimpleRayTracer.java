@@ -8,26 +8,29 @@ import scene.Scene;
 import java.util.List;
 
 /**
- * A simple implementation of {@link RayTracerBase} that returns the ambient light color
- * for the closest intersection point with a geometry in the scene.
+ * {@code SimpleRayTracer} is a basic implementation of the {@link RayTracerBase} class.
+ * <p>
+ * This ray tracer computes lighting using ambient, diffuse, and specular components.
+ * Shadows and reflection/refraction are not supported in this implementation.
  */
 public class SimpleRayTracer extends RayTracerBase {
 
     /**
-     * Constructs a new {@code SimpleRayTracer} for the specified scene.
+     * Constructs a {@code SimpleRayTracer} for the given scene.
      *
-     * @param scene the {@link Scene} to trace rays through
+     * @param scene the {@link Scene} to render
      */
-    SimpleRayTracer(Scene scene) {
+    public SimpleRayTracer(Scene scene) {
         super(scene);
     }
 
     /**
-     * Traces the given ray and returns the ambient light color at the closest
-     * intersection point, or the scene's background color if there is no intersection.
+     * Traces a ray and determines the color of the pixel it intersects with.
+     * <p>
+     * If no intersection is found, the scene's background color is returned.
      *
      * @param ray the {@link Ray} to trace
-     * @return the {@link Color} at the closest intersection, or background if none
+     * @return the computed {@link Color} at the intersection point, or background if none
      */
     @Override
     public Color traceRay(Ray ray) {
@@ -40,21 +43,32 @@ public class SimpleRayTracer extends RayTracerBase {
     }
 
     /**
-     * Computes the color at a given point.
+     * Computes the final color at a given intersection point.
      * <p>
-     * This simple implementation returns only the ambient light of the scene.
+     * Includes ambient lighting and local effects (diffuse and specular).
      *
-     * @param intersection the {@link Intersection} at which to compute the color
-     * @return the ambient light {@link Color}
+     * @param intersection the intersection data
+     * @param ray the incoming ray
+     * @return the final computed {@link Color}
      */
     private Color calcColor(Intersection intersection, Ray ray) {
         if (!preprocessIntersection(intersection, ray.getDirection())) {
             return Color.BLACK;
         }
-        return scene.ambientLight.getIntensity().scale(intersection.geometry.getMaterial().kA)
+
+        return scene.ambientLight.getIntensity()
+                .scale(intersection.geometry.getMaterial().kA)
                 .add(calcColorLocalEffects(intersection));
     }
 
+    /**
+     * Prepares the intersection for lighting calculations by computing
+     * the normalized viewing vector, surface normal, and their dot product.
+     *
+     * @param intersection the intersection to preprocess
+     * @param v the direction of the incoming ray
+     * @return {@code true} if the point is lit; {@code false} if it's facing away
+     */
     public boolean preprocessIntersection(Intersection intersection, Vector v) {
         intersection.v = v.normalize();
         intersection.normal = intersection.geometry.getNormal(intersection.point);
@@ -62,6 +76,14 @@ public class SimpleRayTracer extends RayTracerBase {
         return !Util.isZero(intersection.vNormal);
     }
 
+    /**
+     * Sets the light direction and related dot product values for the intersection point.
+     *
+     * @param intersection the intersection to update
+     * @param lightSource the current {@link LightSource}
+     * @return {@code true} if the light and view vectors point in the same general direction,
+     *         indicating a visible light contribution
+     */
     public boolean setLightSource(Intersection intersection, LightSource lightSource) {
         intersection.light = lightSource;
         intersection.l = lightSource.getL(intersection.point);
@@ -69,6 +91,12 @@ public class SimpleRayTracer extends RayTracerBase {
         return Util.alignZero(intersection.lNormal * intersection.vNormal) > 0;
     }
 
+    /**
+     * Computes the local lighting effects (diffuse and specular) at the intersection point.
+     *
+     * @param intersection the intersection to shade
+     * @return the total {@link Color} contribution from all light sources
+     */
     private Color calcColorLocalEffects(Intersection intersection) {
         Color color = intersection.geometry.getEmission();
         for (LightSource light : scene.lights) {
@@ -80,17 +108,32 @@ public class SimpleRayTracer extends RayTracerBase {
         return color;
     }
 
+    /**
+     * Computes the specular reflection component at the intersection point.
+     *
+     * @param intersection the intersection to evaluate
+     * @return the {@link Double3} representing the specular reflection strength
+     */
     private Double3 calcSpecular(Intersection intersection) {
-        Vector r = intersection.l.subtract(intersection.normal.scale(2 * intersection.lNormal));
+        Vector r = intersection.l.subtract(
+                intersection.normal.scale(2 * intersection.lNormal)
+        );
         Vector negV = intersection.v.scale(-1);
         double vr = Util.alignZero(negV.dotProduct(r));
         if (vr <= 0) {
             return Double3.ZERO;
         }
-        return intersection.geometry.getMaterial().kS.scale(Math.pow(vr, intersection.geometry.getMaterial().nShininess));
-
+        return intersection.geometry.getMaterial().kS.scale(
+                Math.pow(vr, intersection.geometry.getMaterial().nShininess)
+        );
     }
 
+    /**
+     * Computes the diffuse reflection component at the intersection point.
+     *
+     * @param intersection the intersection to evaluate
+     * @return the {@link Double3} representing the diffuse reflection strength
+     */
     private Double3 calcDiffusive(Intersection intersection) {
         double ln = Util.alignZero(intersection.lNormal);
         return intersection.material.kD.scale(Math.abs(ln));

@@ -82,7 +82,12 @@ public class Ray {
                 : findClosestIntersection(points.stream().map(p -> new Intersection(null, p)).toList()).point;
     }
 
-
+    /**
+     * Finds the closest intersection point from a list of intersections.
+     *
+     * @param intersections a list of {@link Intersection} objects to evaluate
+     * @return the closest {@link Intersection} to the ray origin, or {@code null} if the list is empty
+     */
     public Intersection findClosestIntersection(List<Intersection> intersections) {
         if (intersections.isEmpty())
             return null;
