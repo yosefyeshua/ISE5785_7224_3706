@@ -58,7 +58,6 @@ public class Tube extends RadialGeometry {
 
         double discriminant = b * b - 4 * a * c;
         if (Util.isZero(discriminant)) {
-            // הקרן משיקה – לא נחשב חיתוך
             return null;
         }
         if (discriminant < 0) return null;
