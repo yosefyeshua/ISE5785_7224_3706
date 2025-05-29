@@ -64,12 +64,17 @@ public class Ray {
      * @return point on the ray axis at the given distance from the head of the ray
      */
     public Point getPoint(double t) {
-        if (isZero(t)) {
+        if (t < 0) {
+            return null;
+        }
+
+        if (Util.isZero(t)) {
             return head;
         }
 
         return head.add(direction.scale(t));
     }
+
 
     /**
      * Finds the closest point to the ray head out of a list of points

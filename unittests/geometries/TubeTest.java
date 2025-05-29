@@ -237,8 +237,20 @@ class TubeTest {
         // TC94: Ray's direction is the tube's ray's direction * -1 (0 point)
         r = new Ray(new Point(3, 0, 4), new Vector(0, 0, -1));
         assertNull(t1.findIntersections(r), "Ray's line does not cross tube");
-        //TC95: Ray is tangent to tube (0 point)
+        // TC95: Ray tangent the tube (0 points)
         r = new Ray(new Point(3, 1, 1), new Vector(-1, 0, 0));
         assertNull(t1.findIntersections(r), "Ray's line does not cross tube");
+        // TC96: Ray tangent the tube (0 points)
+        r = new Ray(new Point(3, 1, 2), new Vector(-1, 0, 0));
+        assertNull(t1.findIntersections(r), "Ray's line does not cross tube");
+        // TC97: Ray tangent the tube (0 points)
+        r = new Ray(new Point(3, 1, -1), new Vector(-1, 0, 0));
+        assertNull(t1.findIntersections(r), "Ray's line does not cross tube");
+        // TC98: Ray orthogonal the tube's ray (2 points)
+        r = new Ray(new Point(3, 0, -3), new Vector(-1, 0, 0));
+        assertNotNull(t1.findIntersections(r), "Ray's line does not cross tube");
+        assertEquals(2, t1.findIntersections(r).size(), "Wrong number of points");
+        assertEquals(List.of(new Point(1, 0, -3), new Point(-1, 0, -3)), t1.findIntersections(r),
+                "Ray crosses tube");
     }
 }
