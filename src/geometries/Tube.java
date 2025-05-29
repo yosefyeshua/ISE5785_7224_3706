@@ -41,7 +41,7 @@ public class Tube extends RadialGeometry {
         }
 
         double vDotAxis = v.dotProduct(vAxis);
-        double a = v.dotProduct(v) - vDotAxis * vDotAxis;
+        double a = 1 - vDotAxis * vDotAxis;
 
         double b, c;
         if (deltaP == null) {
@@ -54,7 +54,7 @@ public class Tube extends RadialGeometry {
             c = deltaP.dotProduct(deltaP) - dPVA * dPVA - radius * radius;
         }
 
-        if (Util.isZero(a)) return null; // הקרן מקבילה לציר
+        if (Util.isZero(a)) return null;
 
         double discriminant = b * b - 4 * a * c;
         if (discriminant < 0) return null;
