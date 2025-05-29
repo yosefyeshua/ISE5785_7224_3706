@@ -57,6 +57,10 @@ public class Tube extends RadialGeometry {
         if (Util.isZero(a)) return null; // הקרן מקבילה לציר
 
         double discriminant = b * b - 4 * a * c;
+        if (Util.isZero(discriminant)) {
+            // הקרן משיקה – לא נחשב חיתוך
+            return null;
+        }
         if (discriminant < 0) return null;
 
         double sqrtDisc = Math.sqrt(discriminant);
@@ -64,11 +68,17 @@ public class Tube extends RadialGeometry {
         double t2 = (-b + sqrtDisc) / (2 * a);
 
         List<Intersection> intersections = new ArrayList<>();
-        if (t1 > 0) intersections.add(new Intersection(this, ray.getPoint(t1)));
-        if (t2 > 0 && !Util.isZero(t2 - t1)) intersections.add(new Intersection(this, ray.getPoint(t2)));
+
+        if (t1 > 0) {
+            intersections.add(new Intersection(this, ray.getPoint(t1)));
+        }
+        if (t2 > 0 && !Util.isZero(t2 - t1)) {
+            intersections.add(new Intersection(this, ray.getPoint(t2)));
+        }
 
         return intersections.isEmpty() ? null : intersections;
     }
+
 
     /**
      * Returns the normal vector of the tube at a given point.
@@ -79,7 +89,18 @@ public class Tube extends RadialGeometry {
     public Vector getNormal(Point point) {
         Vector u = point.subtract(this.axis.getHead());
         double t = this.axis.getDirection().dotProduct(u);
-        Point O = t != 0 ? this.axis.getPoint(t) : this.axis.getHead();
+        Point O;
+        if (Util.isZero(t)) {
+            // The point is on the axis
+            O = this.axis.getHead();
+        }
+        else if(t>0){
+            // The point is above the axis
+            O = this.axis.getPoint(t);
+        } else {
+            // The point is below the axis
+            O = new Ray(this.axis.getHead(),this.axis.getDirection().scale(-1)).getPoint(-t);
+        }
         return point.subtract(O).normalize();
     }
 }
