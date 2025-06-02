@@ -15,6 +15,25 @@ import java.util.List;
  */
 public class SimpleRayTracer extends RayTracerBase {
 
+
+    private static final double DELTA = 0.1;
+
+    private boolean unshaded(Intersection intersection, LightSource light) {
+        Vector pointToLight = intersection.l.scale(-1);
+        Vector delta = intersection.normal.scale(intersection.lNormal < 0 ? DELTA : -DELTA);
+        Ray shadowRay = new Ray(intersection.point.add(delta), pointToLight);
+        List<Intersection> intersections = scene.geometries.calculateIntersections(shadowRay);
+        if (intersections == null || intersections.isEmpty()) {
+            return true; // No intersection means the point is unshaded
+        }
+        for (Intersection i : intersections) {
+            if (i.point.distance(intersection.point) < light.getDistance(intersection.point)) {
+                return false;
+            }
+        }
+        return false;
+    }
+
     /**
      * Constructs a {@code SimpleRayTracer} for the given scene.
      *
@@ -100,7 +119,7 @@ public class SimpleRayTracer extends RayTracerBase {
     private Color calcColorLocalEffects(Intersection intersection) {
         Color color = intersection.geometry.getEmission();
         for (LightSource light : scene.lights) {
-            if (setLightSource(intersection, light)) {
+            if (setLightSource(intersection, light) && unshaded(intersection, light)) {
                 Color iL = light.getIntensity(intersection.point);
                 color = color.add(iL.scale(calcDiffusive(intersection).add(calcSpecular(intersection))));
             }
