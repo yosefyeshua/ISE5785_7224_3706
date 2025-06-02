@@ -21,6 +21,10 @@ public class Material {
      */
     public Double3 kS = Double3.ZERO;
 
+    public Double3 kT = Double3.ZERO;
+
+    public Double3 kR = Double3.ZERO;
+
     /**
      * Shininess factor for specular reflection.
      */
@@ -103,4 +107,27 @@ public class Material {
         this.nShininess = nShininess;
         return this;
     }
+
+    /**
+     * Sets the transparency coefficient.
+     *
+     * @param kT the {@link Double3} representing the transparency coefficient
+     * @return this {@code Material} object for method chaining
+     */
+    public Material setKT(Double3 kT) {
+        this.kT = kT;
+        return this;
+    }
+
+    /**
+     * Sets the reflection coefficient.
+     *
+     * @param kR the {@link Double3} representing the reflection coefficient
+     * @return this {@code Material} object for method chaining
+     */
+    public Material setKR(Double3 kR) {
+        this.kR = kR;
+        return this;
+    }
+
 }
