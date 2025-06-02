@@ -1,6 +1,7 @@
 package lighting;
 
 import primitives.Color;
+import primitives.Double3;
 import primitives.Point;
 import primitives.Vector;
 
@@ -16,6 +17,8 @@ public class SpotLight extends PointLight {
      */
     private final Vector direction;
 
+    private double narrowBeam = 1;
+
     /**
      * Constructs a spotlight with specified intensity, position, and direction.
      *
@@ -30,7 +33,10 @@ public class SpotLight extends PointLight {
 
     @Override
     public Color getIntensity(Point p) {
-        return super.getIntensity(p).scale(Math.max(0, direction.dotProduct(getL(p))));
+        if (narrowBeam == 1) {
+            return super.getIntensity(p).scale(Math.max(0, direction.dotProduct(getL(p))));
+        }
+        return super.getIntensity(p).scale(Math.pow(Math.max(0d, direction.dotProduct(getL(p))),narrowBeam));
     }
 
     @Override
@@ -38,36 +44,8 @@ public class SpotLight extends PointLight {
         return super.getL(p);
     }
 
-    /**
-     * Sets the constant attenuation factor.
-     *
-     * @param kC constant factor
-     * @return the spotlight itself for chaining
-     */
-    public SpotLight SetKC(double kC) {
-        super.setKC(kC);
-        return this;
-    }
-
-    /**
-     * Sets the linear attenuation factor.
-     *
-     * @param kL linear factor
-     * @return the spotlight itself for chaining
-     */
-    public SpotLight SetKL(double kL) {
-        super.setKL(kL);
-        return this;
-    }
-
-    /**
-     * Sets the quadratic attenuation factor.
-     *
-     * @param kQ quadratic factor
-     * @return the spotlight itself for chaining
-     */
-    public SpotLight SetKQ(double kQ) {
-        super.setKQ(kQ);
+    public SpotLight setNarrowBeam(double narrowBeam) {
+        this.narrowBeam = narrowBeam;
         return this;
     }
 }

@@ -5,6 +5,7 @@ import primitives.Ray;
 import primitives.Util;
 import primitives.Vector;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,6 +16,10 @@ public class Cylinder extends Tube {
 
     /** The height of the cylinder, determining its length along the central axis. */
     private final double height;
+
+    /** The top and bottom caps of the cylinder, represented as {@link Circle} objects. */
+    private final Circle topCap;
+    private final Circle bottomCap;
 
     /**
      * Constructs a {@code Cylinder} with the specified radius, central axis, and height.
@@ -30,11 +35,40 @@ public class Cylinder extends Tube {
             throw new IllegalArgumentException("Height must be greater than zero");
         }
         this.height = height;
+
+        Vector dir = axis.getDirection().normalize();
+        Point base = axis.getHead();
+        Point top = base.add(dir.scale(height));
+
+        this.topCap = new Circle(radius, top, dir);
+        this.bottomCap = new Circle(radius, base, dir.scale(-1));
     }
 
     @Override
     protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
-        return null;
+        List<Intersection> sideIntersections = super.calculateIntersectionsHelper(ray);
+        List<Intersection> intersections = new ArrayList<>();
+
+        Vector axisDirection = axis.getDirection();
+        Point base = axis.getHead();
+
+        if (sideIntersections != null) {
+            for (Intersection intersection : sideIntersections) {
+                Point intersectionPoint = intersection.point;
+                double t = axisDirection.dotProduct(intersectionPoint.subtract(base));
+
+                if (t > 0 && t < height) {
+                    intersections.add(intersection);
+                }
+            }
+        }
+
+        List<Intersection> topIntersections = topCap.calculateIntersections(ray);
+        if (topIntersections != null) {intersections.addAll(topCap.calculateIntersections(ray));}
+        List<Intersection> bottomIntersections = bottomCap.calculateIntersections(ray);
+        if (bottomIntersections != null) {intersections.addAll(bottomCap.calculateIntersections(ray));}
+
+        return intersections.isEmpty() ? null : intersections;
     }
 
     /**

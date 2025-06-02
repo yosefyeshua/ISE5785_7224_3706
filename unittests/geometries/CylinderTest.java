@@ -53,5 +53,11 @@ class CylinderTest {
 
     @Test
     void findIntersections() {
+        Cylinder cylinder = new Cylinder(2, new Ray(Point.ZERO, new Vector(0, 0, 1)), 4);
+
+        // ============ Equivalence Partitions Tests ==============
+
+
+        // =============== Boundary Values Tests ==================
     }
 }

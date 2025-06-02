@@ -57,15 +57,15 @@ class TubeTest {
         // TC11: Ray similar the tube's ray (0 points)
         r = new Ray(new Point(0, 0, 1), new Vector(0, 0, 1));
         assertNull(t1.findIntersections(r), "Ray's line does not cross tube");
-        // TC16: Ray is the tube's ray * -1 (0 points)
+        // TC12: Ray is the tube's ray * -1 (0 points)
         r = new Ray(new Point(0, 0, 1), new Vector(0, 0, -1));
         assertNull(t1.findIntersections(r), "Ray's line does not cross tube");
-        // TC17: Ray start the center and cross the tube (1 point)
+        // TC13: Ray start the center and cross the tube (1 point)
         r = new Ray(new Point(0, 0, 1), new Vector(1, 1, 1));
         assertNotNull(ts2.findIntersections(r), "Ray's line does not cross tube");
         assertEquals(1, ts2.findIntersections(r).size(), "Wrong number of points");
         assertEquals(List.of(new Point(1, 1, 2)), ts2.findIntersections(r), "Ray crosses tube");
-        // TC18: Ray start the center and orthogonal the tube's ray (1 point)
+        // TC14: Ray start the center and orthogonal the tube's ray (1 point)
         r = new Ray(new Point(0, 0, 1), new Vector(1, 0, 0));
         assertNotNull(t1.findIntersections(r), "Ray's line does not cross tube");
         assertEquals(1, t1.findIntersections(r).size(), "Wrong number of points");
@@ -132,7 +132,7 @@ class TubeTest {
         assertNotNull(t1.findIntersections(r), "Ray's line does not cross tube");
         assertEquals(1, t1.findIntersections(r).size(), "Wrong number of points");
         assertEquals(List.of(new Point(-1, 0, 1)), t1.findIntersections(r), "Ray crosses tube");
-        // TC52: Ray * -1 through the center of the base (1 point)
+        // TC52: Ray * -1 through the center of the base (0 point)
         r = new Ray(new Point(1, 0, 1), new Vector(1, 0, 0));
         assertNull(t1.findIntersections(r), "Ray's line does not cross tube");
         // TC53: Ray's direction is the tube's ray's direction (0 point)
