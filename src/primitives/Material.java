@@ -120,6 +120,16 @@ public class Material {
     }
 
     /**
+     * Sets the transparency coefficient.
+     *
+     * @param kT the double value to set for all channels of the transparency coefficient
+     * @return this {@code Material} object for method chaining
+     */
+    public Material setKT(double kT) {
+        this.kT = new Double3(kT);
+        return this;
+    }
+    /**
      * Sets the reflection coefficient.
      *
      * @param kR the {@link Double3} representing the reflection coefficient
@@ -127,6 +137,17 @@ public class Material {
      */
     public Material setKR(Double3 kR) {
         this.kR = kR;
+        return this;
+    }
+
+    /**
+     * Sets the reflection coefficient.
+     *
+     * @param kR the double value to set for all channels of the reflection coefficient
+     * @return this {@code Material} object for method chaining
+     */
+    public Material setKR(double kR) {
+        this.kR = new Double3(kR);
         return this;
     }
 
