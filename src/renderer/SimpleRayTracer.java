@@ -68,6 +68,26 @@ public class SimpleRayTracer extends RayTracerBase {
         return true;
     }
 
+    private Double3 transparency(Intersection intersection) {
+        Vector pointToLight = intersection.l.scale(-1);
+        Ray shadowRay = newSecondaryRay(intersection, pointToLight);
+        List<Intersection> intersections = scene.geometries.calculateIntersections(shadowRay);
+        if (intersections == null || intersections.isEmpty()) {
+            return Double3.ONE;
+        }
+        Double3 ktr = Double3.ONE;
+        for (Intersection i : intersections) {
+            if (i.point.distance(intersection.point) < intersection.light.getDistance(intersection.point)) {
+                ktr = ktr.product(i.material.kT);
+            }
+
+            if (ktr.lowerThan(MIN_CALC_COLOR_K)) {
+                return Double3.ZERO;
+            }
+        }
+        return ktr;
+    }
+
     /**
      * Constructs a refracted ray from the intersection point in the same direction as the incoming ray.
      *
@@ -124,6 +144,11 @@ public class SimpleRayTracer extends RayTracerBase {
                 .add(calcColor(intersection, MAX_CALC_COLOR_LEVEL, INITIAL_K));
     }
 
+    private Color calcColor(Intersection intersection, int level, Double3 k) {
+        return calcColorLocalEffects(intersection)
+                .add(calcGlobalEffects(intersection, level, k));
+    }
+
     public boolean preprocessIntersection(Intersection intersection, Vector v) {
         intersection.v = v.normalize();
         intersection.normal = intersection.geometry.getNormal(intersection.point);
@@ -141,8 +166,12 @@ public class SimpleRayTracer extends RayTracerBase {
     private Color calcColorLocalEffects(Intersection intersection) {
         Color color = intersection.geometry.getEmission();
         for (LightSource light : scene.lights) {
-            if (setLightSource(intersection, light) && unshaded(intersection, light)) {
-                Color iL = light.getIntensity(intersection.point);
+            if (!setLightSource(intersection, light)) {
+                continue; // Skip if the light source is not relevant
+            }
+            Double3 ktr = transparency(intersection);
+            if (!ktr.lowerThan(MIN_CALC_COLOR_K)) {
+                Color iL = light.getIntensity(intersection.point).scale(ktr);
                 color = color.add(iL.scale(calcDiffusive(intersection).add(calcSpecular(intersection))));
             }
         }
@@ -166,11 +195,6 @@ public class SimpleRayTracer extends RayTracerBase {
     private Double3 calcDiffusive(Intersection intersection) {
         double ln = Util.alignZero(intersection.lNormal);
         return intersection.material.kD.scale(Math.abs(ln));
-    }
-
-    private Color calcColor(Intersection intersection, int level, Double3 k) {
-        return calcColorLocalEffects(intersection)
-                .add(calcGlobalEffects(intersection, level, k));
     }
 
     private Color calcGlobalEffect(Ray secRay, int level, Double3 k, Double3 kRorT) {
