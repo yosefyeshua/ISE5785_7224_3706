@@ -45,8 +45,8 @@ public class Cylinder extends Tube {
     }
 
     @Override
-    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
-        List<Intersection> sideIntersections = super.calculateIntersectionsHelper(ray);
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
+        List<Intersection> sideIntersections = super.calculateIntersectionsHelper(ray, maxDistance);
         List<Intersection> intersections = new ArrayList<>();
 
         Vector axisDirection = axis.getDirection();

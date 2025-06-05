@@ -2,6 +2,7 @@ package geometries;
 
 import primitives.Point;
 import primitives.Ray;
+import primitives.Util;
 import primitives.Vector;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class Sphere extends RadialGeometry {
     }
 
     @Override
-    protected List<Intersection> calculateIntersectionsHelper (Ray ray) {
+    protected List<Intersection> calculateIntersectionsHelper (Ray ray, double maxDistance) {
         if (this.center.equals(ray.getHead()))
             return List.of(new Intersection(this, ray.getPoint(this.radius)));
         Vector u = this.center.subtract(ray.getHead());
@@ -55,11 +56,11 @@ public class Sphere extends RadialGeometry {
         double th = Math.sqrt(this.radius * this.radius - d * d);
         double t1 = tm - th;
         double t2 = tm + th;
-        if (t1 > 0 && t2 > 0) {
+        if (t1 > 0 && t2 > 0 && Util.alignZero(t1 - maxDistance) < 0 && Util.alignZero(t2 - maxDistance) < 0) {
             return List.of(new Intersection(this, ray.getPoint(t1)),new Intersection(this,  ray.getPoint(t2)));
-        } else if (t1 > 0) {
+        } else if (t1 > 0 && Util.alignZero(t1 - maxDistance) < 0) {
             return List.of(new Intersection(this, ray.getPoint(t1)));
-        } else if (t2 > 0) {
+        } else if (t2 > 0 && Util.alignZero(t2 - maxDistance) < 0) {
             return List.of(new Intersection(this, ray.getPoint(t2)));
         }
         return null;

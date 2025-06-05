@@ -677,7 +677,7 @@ class LightsTests {
                             .setMaterial(lampMat)
             );
             for (int i = 0; i < 3; i++) {
-                double frac = (i + 1.5) / 5.0;
+                double frac = (i + 1) / 5.0;
                 Point lightPos = lampStart.add(lampDir.scale(lampLength * frac));
                 scene.lights.add(
                         new PointLight(new Color(200, 200, 200), lightPos)

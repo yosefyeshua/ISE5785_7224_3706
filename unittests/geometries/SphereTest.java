@@ -137,4 +137,29 @@ class SphereTest {
         assertEquals(List.of(new Point(2, 1, 0)), result, "Ray orthogonal inside");
     }
 
+    /**
+     * Test method for {@link geometries.Sphere#calculateIntersections(Ray, double)}.
+     */
+    @Test
+    void testCalculateIntersections() {
+        Sphere s = new Sphere(4, Point.ZERO);
+        final double MAX = 3.5;
+
+        // ============ Equivalence Partitions Tests ==============
+
+        // TC01: Ray starts before and ends before
+        Ray r = new Ray(new Point(-10, 0, 0), new Vector(1, 0, 0));
+        assertNull(s.calculateIntersections(r, MAX), "Expected no intersections");
+
+        // TC02: Ray starts before and ends in the sphere (2 points)
+        r = new Ray(new Point(-5, 0, 0), new Vector(1, 0, 0));
+        var result = s.calculateIntersections(r, MAX);
+        assertNotNull(result, "Can't be null");
+        assertEquals(1, result.size(), "Wrong number of points");
+
+        // TC03: Ray starts inside the sphere and ends inside the sphere
+        r = new Ray(new Point(-3.9, 0.5, 0.5), new Vector(1, 0, 0));
+        assertNull(s.calculateIntersections(r, MAX), "Expected no intersections");
+    }
+
 }
