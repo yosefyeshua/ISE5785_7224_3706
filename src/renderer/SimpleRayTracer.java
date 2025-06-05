@@ -91,17 +91,15 @@ public class SimpleRayTracer extends RayTracerBase {
      * @return the total transparency coefficient as a {@link Double3}
      */
     private Double3 transparency(Intersection intersection) {
-        Vector pointToLight = intersection.l.scale(-1);
-        Ray shadowRay = newSecondaryRay(intersection, pointToLight);
-        List<Intersection> intersections = scene.geometries.calculateIntersections(shadowRay);
+        List<Intersection> intersections = scene.geometries.calculateIntersections(
+                newSecondaryRay(intersection, intersection.l.scale(-1)),
+                intersection.light.getDistance(intersection.point));
         if (intersections == null || intersections.isEmpty()) {
             return Double3.ONE;
         }
         Double3 ktr = Double3.ONE;
         for (Intersection i : intersections) {
-            if (i.point.distance(intersection.point) < intersection.light.getDistance(intersection.point)) {
-                ktr = ktr.product(i.material.kT);
-            }
+            ktr = ktr.product(i.material.kT);
 
             if (ktr.lowerThan(MIN_CALC_COLOR_K)) {
                 return Double3.ZERO;

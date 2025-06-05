@@ -32,25 +32,13 @@ public abstract class Intersectable {
         return list == null ? null : list.stream().map(intersection -> intersection.point).toList();
     }
 
-    /**
-     * Helper method that calculates the list of {@link Intersection} instances
-     * between the ray and the geometry.
-     * Subclasses must implement this to provide specific intersection logic.
-     *
-     * @param ray the ray for which intersections are sought
-     * @return a list of {@link Intersection} objects, or {@code null} if none exist
-     */
-    protected abstract List<Intersection> calculateIntersectionsHelper(Ray ray);
-
-    /**
-     * Wrapper method to invoke the subclass-specific intersection calculation logic.
-     *
-     * @param ray the ray to intersect with the geometry
-     * @return a list of {@link Intersection} objects, or {@code null} if none exist
-     */
     public final List<Intersection> calculateIntersections(Ray ray) {
-        return calculateIntersectionsHelper(ray);
+        return calculateIntersections(ray, Double.POSITIVE_INFINITY);
     }
+    public final List<Intersection> calculateIntersections(Ray ray, double maxDistance) {
+        return calculateIntersectionsHelper(ray, maxDistance);
+    }
+    protected abstract List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance);
 
     /**
      * Encapsulates detailed information about a ray-geometry intersection.

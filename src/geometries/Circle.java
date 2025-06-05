@@ -41,13 +41,13 @@ public class Circle extends RadialGeometry{
     }
 
     @Override
-    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
-        List<Intersection> intersections = plane.calculateIntersections(ray);
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
+        List<Intersection> intersections = plane.calculateIntersections(ray, maxDistance);
         if (intersections == null || intersections.isEmpty()) {
             return null; // No intersection with the plane
         }
 
         return intersections.getFirst().point.distance(center) < radius ?
-                List.of(intersections.getFirst()) : null;
+                List.of(new Intersection(this, intersections.getFirst().point)) : null;
     }
 }
