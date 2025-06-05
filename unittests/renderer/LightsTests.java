@@ -321,7 +321,109 @@ class LightsTests {
                 .writeToImage("lightTubeMulti");
     }
 
-   /**
+    @Test
+    void cylinderMulti() {
+       Point tubeCenter = new Point(0, 0, -50);
+       double tubeRadius = 50d;
+       Geometry tube = new Cylinder(tubeRadius,new Ray(tubeCenter, new Vector(-1,1,0.5)), 50)
+               .setEmission(sphereColor).setMaterial(new Material().setKD(KD).setKS(KS).setNShininess(SHININESS));
+       scene1.geometries.add(tube);
+
+       scene1.lights.add(new DirectionalLight(Color.GREEN.scale(5), new Vector(0, 0, -1)));
+
+
+
+
+       camera1 //
+               .setResolution(500, 500) //
+               .build() //
+               .renderImage() //
+               .writeToImage("lightCylinderMulti");
+    }
+
+   @Test
+   void Sun() {
+      Geometry sun = new Sphere(30, Point.ZERO).setEmission(Color.RED.scale(5)).setMaterial(new Material().setKD(0.2).setKS(0.2).setNShininess(30).setKT(0.9));
+      scene1.geometries.add(sun);
+
+         PointLight plight = new PointLight(Color.YELLOW.scale(5), Point.ZERO);
+         scene1.lights.add(plight);
+
+      Point tubeCenter = new Point(-50, -50, -50);
+      double tubeRadius = 20d;
+      Geometry tube = new Cylinder(tubeRadius,new Ray(tubeCenter, new Vector(1,1,0)), 50)
+              .setEmission(Color.BLUE).setMaterial(new Material().setKD(KD).setKS(KS).setNShininess(SHININESS));
+      scene1.geometries.add(tube);
+
+
+
+      camera1 //
+              .setResolution(500, 500) //
+              .build() //
+              .renderImage() //
+              .writeToImage("sun1");
+   }
+
+   @Test
+   void solarTest() {
+      // --- Setup Scene ---
+      Scene scene1 = new Scene("Solar System");
+
+// --- Define Materials ---
+      Material basicMaterial = new Material().setKD(0.5).setKS(0.5).setNShininess(100);
+      Material sunMaterial = new Material().setKD(0.8).setKS(0.8).setNShininess(300);
+
+// --- Sun ---
+      Geometry sun = new Sphere(new Point(0, 0, 0), 10)
+              .setEmission(new Color(255, 204, 0)) // Bright yellow
+              .setMaterial(sunMaterial);
+      scene1.geometries.add(sun);
+
+// --- Planets ---
+      Color[] planetColors = {
+              new Color(169, 169, 169), // Mercury
+              new Color(255, 153, 51),  // Venus
+              new Color(0, 102, 255),   // Earth
+              new Color(255, 0, 0),     // Mars
+              new Color(255, 255, 153)  // Jupiter
+      };
+
+      double[] orbitRadii = {15, 25, 35, 45, 60};
+      double[] planetRadii = {1.5, 2.5, 2.5, 2.2, 5.0};
+
+      for (int i = 0; i < planetColors.length; i++) {
+         Point center = new Point(orbitRadii[i], 0, 0);
+         Geometry planet = new Sphere(center, planetRadii[i])
+                 .setEmission(planetColors[i])
+                 .setMaterial(basicMaterial);
+         scene1.geometries.add(planet);
+      }
+
+// --- Lighting ---
+      scene1.lights.add(
+              new PointLight(new Color(1000, 800, 600), new Point(0, 0, 0))
+                      .setKL(0.0005)
+                      .setKQ(0.0005)
+      );
+      scene1.setAmbientLight(new AmbientLight(new Color(50, 50, 50)));
+
+// --- Camera ---
+      Camera camera1 = Camera.getBuilder()
+              .setRayTracer(scene1, RayTracerType.SIMPLE)
+              .setLocation(new Point(0, -200, 100))
+              .setDirection(new Point(0, 0, 0), new Vector(0, 0, 1))
+              .setVpSize(150, 150)
+              .setVpDistance(200)
+              .setResolution(500, 500)
+              .build();
+
+      camera1.renderImage();
+      camera1.writeToImage("solarSystem");
+
+
+   }
+
+    /**
     * Produce a picture of a tube and trigle and sphere lighted by a multi light
     */
    @Test

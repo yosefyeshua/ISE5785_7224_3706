@@ -29,7 +29,7 @@ public class Cylinder extends Tube {
      * @param height the height of the cylinder; must be positive
      * @throws IllegalArgumentException if {@code height} is negative
      */
-    protected Cylinder(double radius, Ray axis, double height) {
+    public Cylinder(double radius, Ray axis, double height) {
         super(radius, axis);
         if (height <= 0) {
             throw new IllegalArgumentException("Height must be greater than zero");
@@ -55,7 +55,7 @@ public class Cylinder extends Tube {
         if (sideIntersections != null) {
             for (Intersection intersection : sideIntersections) {
                 Point intersectionPoint = intersection.point;
-                double t = axisDirection.dotProduct(intersectionPoint.subtract(base));
+                double t = Util.alignZero(axisDirection.dotProduct(intersectionPoint.subtract(base)));
 
                 if (t > 0 && t < height) {
                     intersections.add(intersection);
@@ -64,9 +64,14 @@ public class Cylinder extends Tube {
         }
 
         List<Intersection> topIntersections = topCap.calculateIntersections(ray);
-        if (topIntersections != null) {intersections.addAll(topCap.calculateIntersections(ray));}
+        if (topIntersections != null) {
+            Point p = topIntersections.getFirst().point;
+            intersections.add(new Intersection(this, p));
+        }
         List<Intersection> bottomIntersections = bottomCap.calculateIntersections(ray);
-        if (bottomIntersections != null) {intersections.addAll(bottomCap.calculateIntersections(ray));}
+        if (bottomIntersections != null) {
+            Point p = bottomIntersections.getFirst().point;
+            intersections.add(new Intersection(this, p));        }
 
         return intersections.isEmpty() ? null : intersections;
     }
