@@ -13,6 +13,12 @@ import java.util.List;
  * between a given {@link Ray} and the contained geometries.
  */
 public class Geometries extends Intersectable {
+    /**
+     * A list of geometries contained in this collection.
+     * <p>
+     * This list can hold any number of {@link Intersectable} objects, allowing for flexible
+     * composition of complex shapes.
+     */
     private final List<Intersectable> geometries = new LinkedList<>();
 
     public Geometries() {}
