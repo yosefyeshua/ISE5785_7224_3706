@@ -88,4 +88,17 @@ public class Point {
         if (this == o) return true;
         return o instanceof Point other && this.xyz.equals(other.xyz);
     }
+
+    public double getX() {
+        return xyz.d1();
+    }
+    public double getY() {
+        return xyz.d2();
+    }
+    public double getZ() {
+        return xyz.d3();
+    }
+    public Double3 getXYZ() {
+        return xyz;
+    }
 }

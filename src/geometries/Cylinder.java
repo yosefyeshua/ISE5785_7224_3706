@@ -29,7 +29,7 @@ public class Cylinder extends Tube {
      * @param height the height of the cylinder; must be positive
      * @throws IllegalArgumentException if {@code height} is negative
      */
-    protected Cylinder(double radius, Ray axis, double height) {
+    public Cylinder(double radius, Ray axis, double height) {
         super(radius, axis);
         if (height <= 0) {
             throw new IllegalArgumentException("Height must be greater than zero");
