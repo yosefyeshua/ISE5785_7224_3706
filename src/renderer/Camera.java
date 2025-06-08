@@ -136,31 +136,6 @@ public class Camera implements Cloneable {
         return height;
     }
 
-    /**
-     * Returns the distance from the camera to the focal plane.
-     *
-     * @return the distance to the focal plane
-     */
-    public double getFocalDistance() {
-        return focalDistance;
-    }
-
-    /**
-     * Returns the radius of the aperture for depth of field.
-     *
-     * @return the aperture radius
-     */
-    public double getApertureRadius() {
-        return apertureRadius;
-    }
-    /**
-     * Returns the number of samples for depth of field.
-     *
-     * @return the number of depth of field samples
-     */
-    public int getDofSamples() {
-        return dofSamples;
-    }
 
     /**
      * Returns a new {@link Builder} instance for creating a {@code Camera} using a fluent API.
