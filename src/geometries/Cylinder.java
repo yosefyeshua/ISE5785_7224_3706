@@ -45,8 +45,8 @@ public class Cylinder extends Tube {
     }
 
     @Override
-    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
-        List<Intersection> sideIntersections = super.calculateIntersectionsHelper(ray);
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
+        List<Intersection> sideIntersections = super.calculateIntersectionsHelper(ray, maxDistance);
         List<Intersection> intersections = new ArrayList<>();
 
         Vector axisDirection = axis.getDirection();
@@ -55,7 +55,7 @@ public class Cylinder extends Tube {
         if (sideIntersections != null) {
             for (Intersection intersection : sideIntersections) {
                 Point intersectionPoint = intersection.point;
-                double t = axisDirection.dotProduct(intersectionPoint.subtract(base));
+                double t = Util.alignZero(axisDirection.dotProduct(intersectionPoint.subtract(base)));
 
                 if (t > 0 && t < height) {
                     intersections.add(intersection);
@@ -64,18 +64,18 @@ public class Cylinder extends Tube {
         }
 
         List<Intersection> topIntersections = topCap.calculateIntersections(ray);
-        if (topIntersections != null) {intersections.addAll(topCap.calculateIntersections(ray));}
+        if (topIntersections != null) {
+            Point p = topIntersections.getFirst().point;
+            intersections.add(new Intersection(this, p));
+        }
         List<Intersection> bottomIntersections = bottomCap.calculateIntersections(ray);
-        if (bottomIntersections != null) {intersections.addAll(bottomCap.calculateIntersections(ray));}
+        if (bottomIntersections != null) {
+            Point p = bottomIntersections.getFirst().point;
+            intersections.add(new Intersection(this, p));        }
 
         return intersections.isEmpty() ? null : intersections;
     }
 
-    /**
-     * Returns the normal vector of the cylinder at a given point.
-     *
-     * @return the unit normal vector to the cylinder at a given point
-     */
     @Override
     public Vector getNormal(Point point) {
         if (point.equals(this.axis.getHead())) {

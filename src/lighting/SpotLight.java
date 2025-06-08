@@ -1,7 +1,6 @@
 package lighting;
 
 import primitives.Color;
-import primitives.Double3;
 import primitives.Point;
 import primitives.Vector;
 
@@ -17,6 +16,10 @@ public class SpotLight extends PointLight {
      */
     private final Vector direction;
 
+    /**
+     * Factor to control the narrowness of the beam.
+     * A value of 1 means no narrowing, while higher values increase the narrowness.
+     */
     private double narrowBeam = 1;
 
     /**
@@ -44,6 +47,13 @@ public class SpotLight extends PointLight {
         return super.getL(p);
     }
 
+    /**
+     * Sets the narrow beam factor for the spotlight.
+     * A value of 1 means no narrowing, while higher values increase the narrowness.
+     *
+     * @param narrowBeam the narrow beam factor
+     * @return the current spotlight for chaining
+     */
     public SpotLight setNarrowBeam(double narrowBeam) {
         this.narrowBeam = narrowBeam;
         return this;

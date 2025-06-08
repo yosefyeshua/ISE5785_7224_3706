@@ -13,6 +13,12 @@ import java.util.List;
  * between a given {@link Ray} and the contained geometries.
  */
 public class Geometries extends Intersectable {
+    /**
+     * A list of geometries contained in this collection.
+     * <p>
+     * This list can hold any number of {@link Intersectable} objects, allowing for flexible
+     * composition of complex shapes.
+     */
     private final List<Intersectable> geometries = new LinkedList<>();
 
     public Geometries() {}
@@ -36,10 +42,10 @@ public class Geometries extends Intersectable {
     }
 
     @Override
-    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
         List<Intersection> intersections = null;
         for (Intersectable geometry : geometries) {
-            var intersectionsByGeometry = geometry.calculateIntersections(ray);
+            var intersectionsByGeometry = geometry.calculateIntersections(ray, maxDistance);
             if (intersectionsByGeometry != null) {
                 if (intersections == null) {
                     intersections = new LinkedList<>();
