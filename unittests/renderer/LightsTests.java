@@ -1458,4 +1458,307 @@ class LightsTests {
         camera.renderImage()
                 .writeToImage("infiniteMirrorsWithPerson");
     }
+
+    @Test
+    void beautifulGlassSphereOnChessboard() {
+        Scene scene = new Scene("Beautiful Glass Sphere")
+                .setAmbientLight(new AmbientLight(new Color(40, 40, 40)));
+
+        // Chessboard
+        int size = 8;
+        double squareSize = 30;
+        double boardZ = -100;
+        Color beige = new Color(245, 245, 220);
+        Color brown = new Color(139, 69, 19);
+        Material mat = new Material().setKD(0.7).setKS(0.3).setNShininess(100);
+
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Color color = ((row + col) % 2 == 0) ? beige : brown;
+                double x0 = (col - size / 2.0) * squareSize;
+                double y0 = (row - size / 2.0) * squareSize;
+                Point p1 = new Point(x0, y0, boardZ + 1);
+                Point p2 = new Point(x0 + squareSize, y0, boardZ + 1);
+                Point p3 = new Point(x0 + squareSize, y0 + squareSize, boardZ + 1);
+                Point p4 = new Point(x0, y0 + squareSize, boardZ + 1);
+                scene.geometries.add(
+                    new Polygon(p1, p2, p3, p4)
+                        .setEmission(color)
+                        .setMaterial(mat)
+                );
+            }
+        }
+
+        // Reflective chessboard base
+        double boardWidth = size * squareSize;
+        double boardHeight = size * squareSize;
+        Material boardMat = new Material().setKD(0.2).setKS(0.8).setNShininess(300).setKR(0.5);
+        scene.geometries.add(
+            new Polygon(
+                new Point(-boardWidth / 2, -boardHeight / 2, boardZ),
+                new Point(boardWidth / 2, -boardHeight / 2, boardZ),
+                new Point(boardWidth / 2, boardHeight / 2, boardZ),
+                new Point(-boardWidth / 2, boardHeight / 2, boardZ)
+            ).setEmission(new Color(60, 60, 60)).setMaterial(boardMat)
+        );
+
+        // Glass sphere
+        double sphereRadius = 40;
+        Point sphereCenter = new Point(0, 0, boardZ + sphereRadius + 10);
+        Material glassMat = new Material()
+                .setKD(0.1).setKS(0.9).setNShininess(500)
+                .setKT(0.8).setKR(0.2);
+        scene.geometries.add(
+            new Sphere(sphereCenter, sphereRadius)
+                .setEmission(new Color(180, 220, 255).reduce(2))
+                .setMaterial(glassMat)
+        );
+
+        // Soft colored lights
+        scene.lights.add(
+            new SpotLight(new Color(400, 200, 200), new Point(-100, -100, 100), new Vector(1, 1, -1))
+                .setKL(0.0005).setKQ(0.0001)
+        );
+        scene.lights.add(
+            new SpotLight(new Color(200, 400, 200), new Point(100, -100, 100), new Vector(-1, 1, -1))
+                .setKL(0.0005).setKQ(0.0001)
+        );
+        scene.lights.add(
+            new SpotLight(new Color(200, 200, 400), new Point(0, 120, 200), new Vector(0, -1, -1))
+                .setKL(0.0005).setKQ(0.0001)
+        );
+
+        // Background wall (gradient effect)
+        scene.geometries.add(
+            new Polygon(
+                new Point(-300, 300, boardZ + 200),
+                new Point(300, 300, boardZ + 200),
+                new Point(300, -300, boardZ + 200),
+                new Point(-300, -300, boardZ + 200)
+            ).setEmission(new Color(80, 120, 180)).setMaterial(new Material().setKD(0.2).setKS(0.1).setNShininess(10))
+        );
+
+        // Camera
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, -400, 120))
+                .setDirection(sphereCenter, new Vector(0, 0, 1))
+                .setVpSize(400, 400)
+                .setVpDistance(600)
+                .setResolution(800, 800)
+                .build();
+
+        camera.renderImage()
+                .writeToImage("beautifulGlassSphereOnChessboard");
+    }
+    @Test
+    void glowingDragonEggScene() {
+        Scene scene = new Scene("Glowing Dragon Egg")
+                .setAmbientLight(new AmbientLight(new Color(20, 20, 30)));
+
+        // Floor (reflective, dark)
+        double floorZ = -120;
+        double floorSize = 500;
+        Material floorMat = new Material().setKD(0.2).setKS(0.8).setNShininess(300).setKR(0.7);
+        scene.geometries.add(
+            new Polygon(
+                new Point(-floorSize, -floorSize, floorZ),
+                new Point(floorSize, -floorSize, floorZ),
+                new Point(floorSize, floorSize, floorZ),
+                new Point(-floorSize, floorSize, floorZ)
+            ).setEmission(new Color(30, 30, 40)).setMaterial(floorMat)
+        );
+
+        // Pedestal (stacked stone cylinders)
+        double pedestalRadius = 30;
+        double pedestalHeight = 60;
+        Color stoneColor = new Color(80, 80, 90);
+        Material stoneMat = new Material().setKD(0.5).setKS(0.3).setNShininess(80);
+        for (int i = 0; i < 3; i++) {
+            scene.geometries.add(
+                new Cylinder(
+                    pedestalRadius - i * 6,
+                    new Ray(new Point(0, 0, floorZ + i * 20), new Vector(0, 0, 1)),
+                    20
+                ).setEmission(Color.DARK_BLUE.scale(1 - i * 0.1)).setMaterial(stoneMat)
+            );
+        }
+
+        // Dragon egg (glass sphere with glowing core)
+        double eggRadius = 28;
+        double coreRadius = 14;
+        Point eggCenter = new Point(0, 0, floorZ + pedestalHeight + eggRadius);
+        Material glassMat = new Material().setKD(0.1).setKS(0.9).setNShininess(500).setKT(0.85).setKR(0.2);
+        Material coreMat = new Material().setKD(0.2).setKS(0.8).setNShininess(200);
+
+        // Outer glass
+        scene.geometries.add(
+            new Sphere(eggCenter, eggRadius)
+                .setEmission(new Color(120, 180, 255).reduce(2))
+                .setMaterial(glassMat)
+        );
+        // Glowing core
+        scene.geometries.add(
+            new Sphere(eggCenter, coreRadius)
+                .setEmission(new Color(255, 180, 60).scale(2))
+                .setMaterial(coreMat)
+        );
+
+        // Misty background wall
+        double wallZ = floorZ + 120;
+        scene.geometries.add(
+            new Polygon(
+                new Point(-200, -200, wallZ),
+                new Point(200, -200, wallZ),
+                new Point(200, 200, wallZ),
+                new Point(-200, 200, wallZ)
+            ).setEmission(new Color(80, 100, 140).reduce(2))
+             .setMaterial(new Material().setKD(0.3).setKS(0.1).setNShininess(10).setKT(0.3))
+        );
+
+        // Dramatic colored spotlights
+        scene.lights.add(
+            new SpotLight(new Color(400, 200, 100), new Point(-80, -80, 80), eggCenter.subtract(new Point(-80, -80, 80)))
+                .setKL(0.0005).setKQ(0.0001)
+        );
+        scene.lights.add(
+            new SpotLight(new Color(100, 300, 500), new Point(100, 80, 120), eggCenter.subtract(new Point(100, 80, 120)))
+                .setKL(0.0005).setKQ(0.0001)
+        );
+        scene.lights.add(
+            new SpotLight(new Color(200, 400, 200), new Point(0, -120, 100), eggCenter.subtract(new Point(0, -120, 100)))
+                .setKL(0.0005).setKQ(0.0001)
+        );
+
+        // Camera setup
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, -220, 60))
+                .setDirection(eggCenter, new Vector(0, 0, 1))
+                .setVpSize(200, 200)
+                .setVpDistance(400)
+                .setResolution(800, 800)
+                .build();
+
+        camera.renderImage()
+                .writeToImage("glowingDragonEggScene");
+    }
+    @Test
+    void spaceSceneWithAlien() {
+        Scene scene = new Scene("Space Scene")
+                .setAmbientLight(new AmbientLight(new Color(10, 10, 20)));
+
+        // Space background (large dark sphere)
+        scene.geometries.add(
+            new Sphere(new Point(0, 0, 0), 2000)
+                .setEmission(new Color(10, 10, 30))
+                .setMaterial(new Material().setKD(1).setKS(0).setNShininess(1))
+        );
+
+        // Stars (random small white spheres)
+        java.util.Random rand = new java.util.Random(42);
+        for (int i = 0; i < 80; i++) {
+            double theta = rand.nextDouble() * 2 * Math.PI;
+            double phi = rand.nextDouble() * Math.PI;
+            double r = 1800 + rand.nextDouble() * 100;
+            double x = r * Math.sin(phi) * Math.cos(theta);
+            double y = r * Math.sin(phi) * Math.sin(theta);
+            double z = r * Math.cos(phi);
+            scene.geometries.add(
+                new Sphere(new Point(x, y, z), 8 + rand.nextDouble() * 4)
+                    .setEmission(new Color(255, 255, 255).scale(0.7 + 0.3 * rand.nextDouble()))
+                    .setMaterial(new Material().setKD(1).setKS(0.2).setNShininess(10))
+            );
+        }
+
+        // Moon (large glowing sphere)
+        Point moonCenter = new Point(400, 300, -200);
+        scene.geometries.add(
+            new Sphere(moonCenter, 90)
+                .setEmission(new Color(255, 255, 200).scale(1.5))
+                .setMaterial(new Material().setKD(0.7).setKS(0.5).setNShininess(200))
+        );
+        scene.lights.add(
+            new PointLight(new Color(600, 600, 400), moonCenter)
+                .setKL(0.0002).setKQ(0.00001)
+        );
+
+        // Asteroids (irregular gray spheres)
+        Color asteroidColor = new Color(80, 80, 80);
+        Material asteroidMat = new Material().setKD(0.5).setKS(0.3).setNShininess(30);
+        for (int i = 0; i < 7; i++) {
+            double angle = i * 2 * Math.PI / 7;
+            double dist = 600 + rand.nextDouble() * 100;
+            double x = dist * Math.cos(angle) - 200;
+            double y = dist * Math.sin(angle) + 100;
+            double z = -100 + rand.nextDouble() * 80;
+            double radius = 40 + rand.nextDouble() * 25;
+            scene.geometries.add(
+                new Sphere(new Point(x, y, z), radius)
+                    .setEmission(asteroidColor.scale(0.7 + 0.3 * rand.nextDouble()))
+                    .setMaterial(asteroidMat)
+            );
+        }
+
+        // Alien (simple green humanoid)
+        Point alienBase = new Point(-200, -100, -60);
+        Color alienGreen = new Color(60, 220, 80);
+        Material alienMat = new Material().setKD(0.7).setKS(0.3).setNShininess(50);
+
+        // Body
+        scene.geometries.add(
+            new Sphere(alienBase.add(new Vector(0, 0, 30)), 18)
+                .setEmission(alienGreen)
+                .setMaterial(alienMat)
+        );
+        // Head
+        scene.geometries.add(
+            new Sphere(alienBase.add(new Vector(0, 0, 60)), 14)
+                .setEmission(alienGreen.scale(1.2))
+                .setMaterial(alienMat)
+        );
+        // Eyes
+        scene.geometries.add(
+            new Sphere(alienBase.add(new Vector(-5, 10, 68)), 3.5)
+                .setEmission(new Color(255, 255, 255))
+                .setMaterial(new Material().setKD(0.9).setKS(0.1).setNShininess(10)),
+            new Sphere(alienBase.add(new Vector(5, 10, 68)), 3.5)
+                .setEmission(new Color(255, 255, 255))
+                .setMaterial(new Material().setKD(0.9).setKS(0.1).setNShininess(10))
+        );
+        // Pupils
+        scene.geometries.add(
+            new Sphere(alienBase.add(new Vector(-5, 12, 69)), 1.2)
+                .setEmission(new Color(20, 20, 20)),
+            new Sphere(alienBase.add(new Vector(5, 12, 69)), 1.2)
+                .setEmission(new Color(20, 20, 20))
+        );
+        // Arms
+        scene.geometries.add(
+            new Cylinder(3, new Ray(alienBase.add(new Vector(0, 0, 35)), new Vector(-1, 1, 0.2)), 30)
+                .setEmission(alienGreen).setMaterial(alienMat),
+            new Cylinder(3, new Ray(alienBase.add(new Vector(0, 0, 35)), new Vector(1, 1, 0.2)), 30)
+                .setEmission(alienGreen).setMaterial(alienMat)
+        );
+        // Legs
+        scene.geometries.add(
+            new Cylinder(3, new Ray(alienBase, new Vector(-0.3, 1, 0)), 28)
+                .setEmission(alienGreen).setMaterial(alienMat),
+            new Cylinder(3, new Ray(alienBase, new Vector(0.3, 1, 0)), 28)
+                .setEmission(alienGreen).setMaterial(alienMat)
+        );
+
+        // Camera setup
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(-600, -600, 120))
+                .setDirection(new Point(0, 0, 0), new Vector(0, 0, -1))
+                .setVpSize(600, 600)
+                .setVpDistance(120)
+                .setResolution(900, 900)
+                .build();
+
+        camera.renderImage()
+                .writeToImage("spaceSceneWithAlien");
+    }
 }
