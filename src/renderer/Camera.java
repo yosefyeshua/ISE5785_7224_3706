@@ -7,6 +7,8 @@ import primitives.Util;
 import primitives.Vector;
 import scene.Scene;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.MissingResourceException;
 
 /**
@@ -78,6 +80,20 @@ public class Camera implements Cloneable {
      */
     private int nY = 1;
 
+    // DEPTH OF FIELD
+    /**
+     * The distance from the camera to the focal plane for depth of field.
+     */
+    private double focalDistance = 0;
+    /**
+     * The radius of the aperture for depth of field.
+     */
+    private double apertureRadius = 0;
+    /**
+     * The number of samples for depth of field.
+     */
+    private int dofSamples = 0;
+
     /**
      * Constructs a ray from the camera through a specific pixel on the view plane.
      *
@@ -115,8 +131,35 @@ public class Camera implements Cloneable {
      *
      * @return the view plane height
      */
+
     public double getHeight() {
         return height;
+    }
+
+    /**
+     * Returns the distance from the camera to the focal plane.
+     *
+     * @return the distance to the focal plane
+     */
+    public double getFocalDistance() {
+        return focalDistance;
+    }
+
+    /**
+     * Returns the radius of the aperture for depth of field.
+     *
+     * @return the aperture radius
+     */
+    public double getApertureRadius() {
+        return apertureRadius;
+    }
+    /**
+     * Returns the number of samples for depth of field.
+     *
+     * @return the number of depth of field samples
+     */
+    public int getDofSamples() {
+        return dofSamples;
     }
 
     /**
@@ -127,6 +170,7 @@ public class Camera implements Cloneable {
     public static Builder getBuilder() {
         return new Builder();
     }
+
 
     /**
      * Renders the image using the set {@link ImageWriter} and {@link RayTracerBase}.
@@ -169,20 +213,63 @@ public class Camera implements Cloneable {
         imageWriter.writeToImage(filename);
         return this;
     }
+    /**
+     * Constructs multiple rays from the aperture toward the focal point.
+     *
+     * @param ray The primary ray through the view plane pixel.
+     * @return List of rays from random aperture positions toward the focal point.
+     */
+    private List<Ray> constructDofRays(Ray ray) {
+        List<Ray> rays = new ArrayList<>();
+        double t = focalDistance / vTo.dotProduct(ray.getDirection());
+        Point focalPoint = ray.getPoint(t);
+
+        for (int i = 0; i < dofSamples; i++) {
+            Point aperturePoint = getRandomAperturePoint();
+            Vector dir = focalPoint.subtract(aperturePoint).normalize();
+            rays.add(new Ray(aperturePoint, dir));
+        }
+        return rays;
+    }
 
     /**
-     * Casts a ray through a pixel, traces its color, and writes it to the image.
+     * Generates a random point on the aperture (a disk centered at the camera origin).
      *
-     * @param Nx horizontal resolution
-     * @param Ny vertical resolution
-     * @param column pixel column index
-     * @param row pixel row index
+     * @return A random point within the aperture.
+     */
+    private Point getRandomAperturePoint() {
+        double r = apertureRadius * Math.sqrt(Math.random());
+        double theta = 2 * Math.PI * Math.random();
+        double x = r * Math.cos(theta);
+        double y = r * Math.sin(theta);
+        return p0.add(vRight.scale(x)).add(vUp.scale(y));
+    }
+
+    /**
+     * Shoots a ray through a pixel, optionally applying depth of field.
+     *
+     * @param Nx Number of columns.
+     * @param Ny Number of rows.
+     * @param column Current column.
+     * @param row Current row.
      */
     private void castRay(int Nx, int Ny, int column, int row) {
         Ray ray = constructRay(Nx, Ny, row, column);
-        Color color = rayTracer.traceRay(ray);
-        imageWriter.writePixel(row, column, color);
+
+        if (apertureRadius > 0 && focalDistance > 0 && dofSamples > 1) {
+            List<Ray> rays = constructDofRays(ray);
+            Color color = Color.BLACK;
+            for (Ray r : rays) {
+                color = color.add(rayTracer.traceRay(r));
+            }
+            color = color.scale(1.0 / rays.size());
+            imageWriter.writePixel(row, column, color);
+        } else {
+            Color color = rayTracer.traceRay(ray);
+            imageWriter.writePixel(row, column, color);
+        }
     }
+
 
     /**
      * Creates and returns a copy of this {@code Camera}.
@@ -304,6 +391,43 @@ public class Camera implements Cloneable {
             camera.nY = nY;
             return this;
         }
+        /**
+         * Sets the focal distance for depth of field.
+         *
+         * @param focalDistance the distance to the focal plane
+         * @return this builder instance for chaining
+         */
+        public Builder setFocalDistance(double focalDistance) {
+            if (focalDistance <= 0)
+                throw new IllegalArgumentException("Focal distance must be positive");
+            camera.focalDistance = focalDistance;
+            return this;
+        }
+        /**
+         * Sets the aperture radius for depth of field.
+         *
+         * @param apertureRadius the radius of the aperture
+         * @return this builder instance for chaining
+         */
+        public Builder setApertureRadius(double apertureRadius) {
+            if (apertureRadius < 0)
+                throw new IllegalArgumentException("Aperture radius must be non-negative");
+            camera.apertureRadius = apertureRadius;
+            return this;
+        }
+        /**
+         * Sets the number of samples for depth of field.
+         *
+         * @param dofSamples the number of samples
+         * @return this builder instance for chaining
+         */
+        public Builder setDofSamples(int dofSamples) {
+            if (dofSamples < 0)
+                throw new IllegalArgumentException("Number of depth of field samples must be non-negative");
+            camera.dofSamples = dofSamples;
+            return this;
+        }
+
 
         /**
          * Sets the {@link RayTracerBase} implementation for the camera.

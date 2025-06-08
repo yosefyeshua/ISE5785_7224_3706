@@ -16,7 +16,7 @@ import java.util.List;
 public class SimpleRayTracer extends RayTracerBase {
 
     private static final double DELTA = 0.1;
-    private static final int MAX_CALC_COLOR_LEVEL = 10;
+    private static final int MAX_CALC_COLOR_LEVEL = 30;
     private static final double MIN_CALC_COLOR_K = 0.001;
     private static final Double3 INITIAL_K = Double3.ONE;
 
