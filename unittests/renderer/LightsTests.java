@@ -860,11 +860,10 @@ class LightsTests {
         double eyeZ = headZ + 5;
         double eyeY = personY + 11;
         double eyeX = 7;
-        double eyeForward = 3;
         double eyeRadius = 4;
         double pupilRadius = 3;
         double pupilForwardOffset = 1.5;
-        Material pupilmat = new Material().setKD(0.1).setKS(0.9).setNShininess(100).setKR(0.5); // Opaque black
+        Material pupilmat = new Material().setKD(0.1).setKS(0.9).setNShininess(100).setKR(0.4); // Opaque black
 
         scene.geometries.add(
                 // Eyeballs (white spheres)
@@ -909,11 +908,8 @@ class LightsTests {
                 .setDirection(lookAt, up)
                 .setVpSize(100, 150)
                 .setVpDistance(30)
-                .setResolution(2000, 2000)
-                .setFocalDistance(cameraLoc.distance(lookAt))
-                .setApertureRadius(0.5)
-                .setDofSamples(3)
-                .setMultithreading(3)
+                .setResolution(5000, 5000)
+                .setMultithreading(4)
                 .setDebugPrint(2)
                 .build();
 
