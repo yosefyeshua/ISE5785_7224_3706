@@ -249,8 +249,9 @@ public class Camera implements Cloneable {
      *
      * @param filename name of the file
      */
-    public void writeToImage(String filename) {
+    public Camera writeToImage(String filename) {
         imageWriter.writeToImage(filename);
+        return this;
     }
     /**
      * Constructs multiple rays from the aperture toward the focal point.
