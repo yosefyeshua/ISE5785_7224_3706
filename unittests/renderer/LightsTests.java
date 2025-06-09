@@ -705,7 +705,7 @@ class LightsTests {
                 .setAmbientLight(new AmbientLight(new Color(30, 30, 30)));
 
         // Mirror parameters
-        double mirrorWidth = 200, mirrorHeight = 300, mirrorThickness = 5;
+        double mirrorWidth = 200, mirrorHeight = 300;
         double mirrorDistance = 200;
         double mirrorZ = 0;
         double mirrorY1 = -mirrorDistance / 2;
@@ -802,37 +802,36 @@ class LightsTests {
 
         double x1 = -bodyWidth / 2, x2 = bodyWidth / 2;
         double y1 = personY - bodyDepth / 2, y2 = personY + bodyDepth / 2;
-        double z1 = bodyZ, z2 = bodyZ + bodyHeight;
+        double z2 = bodyZ + bodyHeight;
 
         // Shirt color and material (same as arms)
-        Color shirtColor = green;
 
         // Shirt as a closed box (all 6 faces)
         scene.geometries.add(
                 // Front (chest)
                 new Polygon(
-                        new Point(x1, y1, z1), new Point(x2, y1, z1), new Point(x2, y2, z1), new Point(x1, y2, z1)
-                ).setEmission(shirtColor).setMaterial(shirtMat),
+                        new Point(x1, y1, bodyZ), new Point(x2, y1, bodyZ), new Point(x2, y2, bodyZ), new Point(x1, y2, bodyZ)
+                ).setEmission(green).setMaterial(shirtMat),
                 // Back
                 new Polygon(
                         new Point(x1, y1, z2), new Point(x2, y1, z2), new Point(x2, y2, z2), new Point(x1, y2, z2)
-                ).setEmission(shirtColor).setMaterial(shirtMat),
+                ).setEmission(green).setMaterial(shirtMat),
                 // Left
                 new Polygon(
-                        new Point(x1, y1, z1), new Point(x1, y2, z1), new Point(x1, y2, z2), new Point(x1, y1, z2)
-                ).setEmission(shirtColor).setMaterial(shirtMat),
+                        new Point(x1, y1, bodyZ), new Point(x1, y2, bodyZ), new Point(x1, y2, z2), new Point(x1, y1, z2)
+                ).setEmission(green).setMaterial(shirtMat),
                 // Right
                 new Polygon(
-                        new Point(x2, y1, z1), new Point(x2, y2, z1), new Point(x2, y2, z2), new Point(x2, y1, z2)
-                ).setEmission(shirtColor).setMaterial(shirtMat),
+                        new Point(x2, y1, bodyZ), new Point(x2, y2, bodyZ), new Point(x2, y2, z2), new Point(x2, y1, z2)
+                ).setEmission(green).setMaterial(shirtMat),
                 // Top (shoulders)
                 new Polygon(
-                        new Point(x1, y2, z1), new Point(x2, y2, z1), new Point(x2, y2, z2), new Point(x1, y2, z2)
-                ).setEmission(shirtColor).setMaterial(shirtMat),
+                        new Point(x1, y2, bodyZ), new Point(x2, y2, bodyZ), new Point(x2, y2, z2), new Point(x1, y2, z2)
+                ).setEmission(green).setMaterial(shirtMat),
                 // Bottom
                 new Polygon(
-                        new Point(x1, y1, z1), new Point(x2, y1, z1), new Point(x2, y1, z2), new Point(x1, y1, z2)
-                ).setEmission(shirtColor).setMaterial(shirtMat)
+                        new Point(x1, y1, bodyZ), new Point(x2, y1, bodyZ), new Point(x2, y1, z2), new Point(x1, y1, z2)
+                ).setEmission(green).setMaterial(shirtMat)
         );
 
         // Arms (cylinders, left and right)
@@ -896,7 +895,6 @@ class LightsTests {
         );
 
         // floor
-        double floorZ = -50;
         scene.geometries.add(
                 new Plane(new Point(0,0,-50), new Vector(0, 0, 1)
                 ).setEmission(new Color(200, 200, 200)).setMaterial(new Material().setKD(0.5).setKS(0.1).setNShininess(20).setKR(0.5)
@@ -1501,14 +1499,13 @@ class LightsTests {
             }
 
             // 2b. After prism: start from (xExit, yExit, z=-110), diverge more (wider rainbow)
-            double lastX = xExit;
             double lastY = yExit - Math.tan(angle) * 8; // matches direction above
             double z = -110;
             double exitAngle = angle * 2.2; // Even wider after prism
 
             for (int j = 1; j <= outsidePrismSteps; j++) {
                 double dx = j * 1.6;
-                double x = lastX + dx;
+                double x = xExit + dx;
                 double y = lastY - Math.tan(exitAngle) * dx;
                 scene.geometries.add(
                         new Sphere(new Point(x, y, z), 0.87)
@@ -1542,9 +1539,11 @@ class LightsTests {
                 .setVpDistance(150)
                 .setVpSize(170, 170)
                 .setResolution(900, 900)
+                .setMultithreading(10)
+                .setDebugPrint(5)
                 .build()
                 .renderImage()
-                .writeToImage("kindOfFinalPrism");
+                .writeToImage("FinalPrismMultiThreading");
     }
 
     /**
