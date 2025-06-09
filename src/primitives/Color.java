@@ -12,7 +12,7 @@ public class Color {
     * The internal fields maintain RGB components as double numbers from 0 to
     * whatever...
     */
-   private final Double3     rgb;
+   public final Double3     rgb;
 
    /* setup of colors */
    /** Black color = (0,0,0) */

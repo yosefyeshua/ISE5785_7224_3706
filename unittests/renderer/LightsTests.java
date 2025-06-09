@@ -323,11 +323,11 @@ class LightsTests {
 
     @Test
     void cylinderMulti() {
-       Point tubeCenter = new Point(0, 0, -50);
-       double tubeRadius = 50d;
-       Geometry tube = new Cylinder(tubeRadius,new Ray(tubeCenter, new Vector(-1,1,0.5)), 50)
+       Point cylinderCenter = new Point(0, 0, -50);
+       double cylinderRadius = 50d;
+       Geometry cylinder = new Cylinder(cylinderRadius,new Ray(cylinderCenter, new Vector(-1,1,0.5)), 50)
                .setEmission(sphereColor).setMaterial(new Material().setKD(KD).setKS(KS).setNShininess(SHININESS));
-       scene1.geometries.add(tube);
+       scene1.geometries.add(cylinder);
 
        scene1.lights.add(new DirectionalLight(Color.GREEN.scale(5), new Vector(0, 0, -1)));
 
@@ -700,4 +700,743 @@ class LightsTests {
                 .writeToImage("chessboardOnGlassTable_Final");
     }
 
+
+
+    /**
+     * Test for creating a prism effect using triangular geometry
+     */
+    @Test
+    void prismTest() {
+        Scene scene = new Scene("Prism Test")
+                .setAmbientLight(new AmbientLight(new Color(20, 20, 20)));
+        // Create a triangular prism using multiple triangles
+        // This creates a triangular prism lying on its side
+
+        // Front face of prism (triangle)
+        scene.geometries.add(
+                new Triangle(new Point(-50, -50, -100), new Point(50, -50, -100), new Point(0, 50, -100))
+                        .setEmission(new Color(10, 10, 10))
+                        .setMaterial(new Material().setKD(0.1).setKS(0.1).setNShininess(100).setKT(0.9).setKR(0.1))
+        );
+
+        // Back face of prism (triangle) - deeper in Z
+        scene.geometries.add(
+                new Triangle(new Point(-50, -50, -150), new Point(50, -50, -150), new Point(0, 50, -150))
+                        .setEmission(new Color(10, 10, 10))
+                        .setMaterial(new Material().setKD(0.1).setKS(0.1).setNShininess(100).setKT(0.9).setKR(0.1))
+        );
+
+        // Left side face
+        scene.geometries.add(
+                new Triangle(new Point(-50, -50, -100), new Point(0, 50, -100), new Point(-50, -50, -150))
+                        .setEmission(new Color(10, 10, 10))
+                        .setMaterial(new Material().setKD(0.1).setKS(0.1).setNShininess(100).setKT(0.9).setKR(0.1)),
+                new Triangle(new Point(0, 50, -100), new Point(-50, -50, -150), new Point(0, 50, -150))
+                        .setEmission(new Color(10, 10, 10))
+                        .setMaterial(new Material().setKD(0.1).setKS(0.1).setNShininess(100).setKT(0.9).setKR(0.1))
+        );
+
+        // Right side face
+        scene.geometries.add(
+                new Triangle(new Point(50, -50, -100), new Point(50, -50, -150), new Point(0, 50, -100))
+                        .setEmission(new Color(10, 10, 10))
+                        .setMaterial(new Material().setKD(0.1).setKS(0.1).setNShininess(100).setKT(0.9).setKR(0.1)),
+                new Triangle(new Point(0, 50, -100), new Point(50, -50, -150), new Point(0, 50, -150))
+                        .setEmission(new Color(10, 10, 10))
+                        .setMaterial(new Material().setKD(0.1).setKS(0.1).setNShininess(100).setKT(0.9).setKR(0.1))
+        );
+
+        // Bottom face
+        scene.geometries.add(
+                new Triangle(new Point(-50, -50, -100), new Point(-50, -50, -150), new Point(50, -50, -100))
+                        .setEmission(new Color(10, 10, 10))
+                        .setMaterial(new Material().setKD(0.1).setKS(0.1).setNShininess(100).setKT(0.9).setKR(0.1)),
+                new Triangle(new Point(50, -50, -100), new Point(-50, -50, -150), new Point(50, -50, -150))
+                        .setEmission(new Color(10, 10, 10))
+                        .setMaterial(new Material().setKD(0.1).setKS(0.1).setNShininess(100).setKT(0.9).setKR(0.1))
+        );
+
+        // Add a white light source positioned to shine through the prism
+        scene.lights.add(
+                new SpotLight(new Color(800, 800, 800), new Point(-200, 0, -125), new Vector(1, 0, 0))
+                        .setKL(0.0001).setKQ(0.0000001)
+        );
+
+        // Add some background elements to see the refracted light
+        scene.geometries.add(
+                // Background plane to catch the refracted light
+                new Triangle(new Point(150, -200, -300), new Point(150, 200, -300), new Point(150, 200, 200))
+                        .setEmission(new Color(20, 20, 20))
+                        .setMaterial(new Material().setKD(0.8).setKS(0.2).setNShininess(20)),
+                new Triangle(new Point(150, -200, -300), new Point(150, 200, 200), new Point(150, -200, 200))
+                        .setEmission(new Color(20, 20, 20))
+                        .setMaterial(new Material().setKD(0.8).setKS(0.2).setNShininess(20))
+        );
+
+        scene.setAmbientLight(new AmbientLight(new Color(15, 15, 15)));
+
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, 0, 500))
+                .setDirection(Point.ZERO, Vector.AXIS_Y)
+                .setVpDistance(500)
+                .setVpSize(300, 300)
+                .setResolution(800, 800)
+                .build()
+                .renderImage()
+                .writeToImage("prismEffect");
+
+        camera.renderImage()
+                .writeToImage("prismEffect");
+    }
+
+    /**
+     * Test for creating a prism effect with visible light beams using tiny spheres
+     */
+    @Test
+    void prismWithVisibleBeams() {
+        Scene scene = new Scene("Prism with Visible Beams")
+                .setAmbientLight(new AmbientLight(new Color(20, 20, 20)));
+
+        // Create a triangular prism (keeping original size but adjusting positions)
+        // Front face
+        scene.geometries.add(
+                new Triangle(new Point(-30, -30, -100), new Point(30, -30, -100), new Point(0, 30, -100))
+                        .setEmission(new Color(5, 5, 5))
+                        .setMaterial(new Material().setKD(0.05).setKS(0.05).setNShininess(100).setKT(0.95))
+        );
+
+        // Back face
+        scene.geometries.add(
+                new Triangle(new Point(-30, -30, -120), new Point(30, -30, -120), new Point(0, 30, -120))
+                        .setEmission(new Color(5, 5, 5))
+                        .setMaterial(new Material().setKD(0.05).setKS(0.05).setNShininess(100).setKT(0.95))
+        );
+
+        // Side faces
+        scene.geometries.add(
+                // Left side
+                new Triangle(new Point(-30, -30, -100), new Point(0, 30, -100), new Point(-30, -30, -120))
+                        .setMaterial(new Material().setKD(0.05).setKS(0.05).setNShininess(100).setKT(0.95)),
+                new Triangle(new Point(0, 30, -100), new Point(-30, -30, -120), new Point(0, 30, -120))
+                        .setMaterial(new Material().setKD(0.05).setKS(0.05).setNShininess(100).setKT(0.95)),
+
+                // Right side
+                new Triangle(new Point(30, -30, -100), new Point(30, -30, -120), new Point(0, 30, -100))
+                        .setMaterial(new Material().setKD(0.05).setKS(0.05).setNShininess(100).setKT(0.95)),
+                new Triangle(new Point(0, 30, -100), new Point(30, -30, -120), new Point(0, 30, -120))
+                        .setMaterial(new Material().setKD(0.05).setKS(0.05).setNShininess(100).setKT(0.95)),
+
+                // Bottom
+                new Triangle(new Point(-30, -30, -100), new Point(-30, -30, -120), new Point(30, -30, -100))
+                        .setMaterial(new Material().setKD(0.05).setKS(0.05).setNShininess(100).setKT(0.95)),
+                new Triangle(new Point(30, -30, -100), new Point(-30, -30, -120), new Point(30, -30, -120))
+                        .setMaterial(new Material().setKD(0.05).setKS(0.05).setNShininess(100).setKT(0.95))
+        );
+
+        // Create incoming white light beam with larger spheres and closer spacing
+        for (int i = 0; i < 90; i++) {
+            double x = -120 + i * 1.5; // Shorter beam, from x=-120 to x=-30
+            scene.geometries.add(
+                    new Sphere(new Point(x, 0, -110), 1.2) // Increased sphere size
+                            .setEmission(new Color(200, 200, 200))
+                            .setMaterial(new Material().setKD(0.3).setKS(0.7).setNShininess(100).setKT(0.3))
+            );
+        }
+
+        // Create dispersed light beams after the prism with larger spheres
+        // Red beam (least refracted - smallest angle)
+        for (int i = 0; i < 50; i++) {
+            double x = 15 + i * 1.8; // Increased spacing
+            double y = 0 + i * 0.08; // Slightly increased angle
+            scene.geometries.add(
+                    new Sphere(new Point(x, y, -110), 1.0) // Larger spheres
+                            .setEmission(new Color(255, 0, 0))
+                            .setMaterial(new Material().setKD(0.4).setKS(0.6).setNShininess(50).setKT(0.4))
+            );
+        }
+
+        // Orange beam
+        for (int i = 0; i < 50; i++) {
+            double x = 15 + i * 1.8;
+            double y = 0 + i * 0.12;
+            scene.geometries.add(
+                    new Sphere(new Point(x, y, -110), 1.0)
+                            .setEmission(new Color(255, 165, 0))
+                            .setMaterial(new Material().setKD(0.4).setKS(0.6).setNShininess(50).setKT(0.4))
+            );
+        }
+
+        // Yellow beam
+        for (int i = 0; i < 50; i++) {
+            double x = 15 + i * 1.8;
+            double y = 0 + i * 0.16;
+            scene.geometries.add(
+                    new Sphere(new Point(x, y, -110), 1.0)
+                            .setEmission(new Color(255, 255, 0))
+                            .setMaterial(new Material().setKD(0.4).setKS(0.6).setNShininess(50).setKT(0.4))
+            );
+        }
+
+        // Green beam
+        for (int i = 0; i < 50; i++) {
+            double x = 15 + i * 1.8;
+            double y = 0 + i * 0.20;
+            scene.geometries.add(
+                    new Sphere(new Point(x, y, -110), 1.0)
+                            .setEmission(new Color(0, 255, 0))
+                            .setMaterial(new Material().setKD(0.4).setKS(0.6).setNShininess(50).setKT(0.4))
+            );
+        }
+
+        // Blue beam
+        for (int i = 0; i < 50; i++) {
+            double x = 15 + i * 1.8;
+            double y = 0 + i * 0.24;
+            scene.geometries.add(
+                    new Sphere(new Point(x, y, -110), 1.0)
+                            .setEmission(new Color(0, 0, 255))
+                            .setMaterial(new Material().setKD(0.4).setKS(0.6).setNShininess(50).setKT(0.4))
+            );
+        }
+
+        // Indigo beam
+        for (int i = 0; i < 50; i++) {
+            double x = 15 + i * 1.8;
+            double y = 0 + i * 0.28;
+            scene.geometries.add(
+                    new Sphere(new Point(x, y, -110), 1.0)
+                            .setEmission(new Color(75, 0, 130))
+                            .setMaterial(new Material().setKD(0.4).setKS(0.6).setNShininess(50).setKT(0.4))
+            );
+        }
+
+        // Violet beam (most refracted - largest angle)
+        for (int i = 0; i < 50; i++) {
+            double x = 15 + i * 1.8;
+            double y = 0 + i * 0.32;
+            scene.geometries.add(
+                    new Sphere(new Point(x, y, -110), 1.0)
+                            .setEmission(new Color(238, 130, 238))
+                            .setMaterial(new Material().setKD(0.4).setKS(0.6).setNShininess(50).setKT(0.4))
+            );
+        }
+
+        // Add a closer background screen to catch the dispersed light
+        scene.geometries.add(
+                new Triangle(new Point(140, -80, -150), new Point(140, 80, -150), new Point(140, 80, -70))
+                        .setEmission(new Color(15, 15, 15))
+                        .setMaterial(new Material().setKD(0.9).setKS(0.1).setNShininess(20)),
+                new Triangle(new Point(140, -80, -150), new Point(140, 80, -70), new Point(140, -80, -70))
+                        .setEmission(new Color(15, 15, 15))
+                        .setMaterial(new Material().setKD(0.9).setKS(0.1).setNShininess(20))
+        );
+
+        // Improved lighting
+        scene.lights.add(
+                new SpotLight(new Color(500, 500, 500), new Point(-150, 0, -110), new Vector(1, 0, 0))
+                        .setKL(0.0001).setKQ(0.0000001)
+        );
+
+        scene.setAmbientLight(new AmbientLight(new Color(20, 20, 20)));
+
+        // Adjusted camera for closer, better view
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, 0, 50)) // Much closer to the action
+                .setDirection(Point.ZERO, Vector.AXIS_Y)
+                .setVpDistance(150) // Reduced viewport distance
+                .setVpSize(200, 200) // Slightly smaller viewport for better focus
+                .setResolution(800, 800) // Higher resolution for better detail
+                .build()
+                .renderImage()
+                .writeToImage("prismWithVisibleBeams8");
+    }
+
+    /**
+     * Test for creating a more physically accurate prism effect with visible light beams using tiny spheres.
+     * Dispersion starts at the entry face and increases at the exit face.
+     */
+    @Test
+    void physicallyAccuratePrismDispersion() {
+        Scene scene = new Scene("Physically Accurate Prism Dispersion")
+                .setAmbientLight(new AmbientLight(new Color(20, 20, 20)));
+
+        // Prism geometry (as before)
+        // ... [same as your triangles and materials for prism faces] ...
+
+        // Incoming white light beam (stops at the prism)
+        for (int i = 0; i < 35; i++) {
+            double x = -120 + i * 2.5; // Beam stops just before prism
+            scene.geometries.add(
+                    new Sphere(new Point(x, 0, -110), 1.2)
+                            .setEmission(new Color(200, 200, 200))
+                            .setMaterial(new Material().setKD(0.3).setKS(0.7).setNShininess(100).setKT(0.3))
+            );
+        }
+
+        // Colored beams start at the entry face and travel through the prism at slightly different angles (simulate dispersion)
+        Color[] colors = {new Color(255,0,0), new Color(255,165,0), new Color(255,255,0),
+                new Color(0,255,0), new Color(0,0,255), new Color(75,0,130), new Color(238,130,238)};
+        double[] entryAngles = {0.03, 0.05, 0.08, 0.11, 0.14, 0.17, 0.20}; // radians, red bends least, violet most
+
+        // Path: from entry face (at x = -30, y = 0) through the prism to exit face (at x = 30)
+        for (int c = 0; c < colors.length; c++) {
+            Color color = colors[c];
+            double angle = entryAngles[c];
+
+            // Inside the prism: colored beams diverge
+            for (int i = 0; i < 40; i++) {
+                double x = -30 + i * 1.5; // inside prism
+                double y = 0 + Math.tan(angle) * (x + 30); // diverge according to angle
+                scene.geometries.add(
+                        new Sphere(new Point(x, y, -110), 1.0)
+                                .setEmission(color)
+                                .setMaterial(new Material().setKD(0.4).setKS(0.6).setNShininess(50).setKT(0.4))
+                );
+            }
+
+            // After the prism: greater divergence (simulate second refraction)
+            double exitAngle = angle * 2; // exaggerate for visibility
+            double lastX = 30;
+            double lastY = Math.tan(angle) * (lastX + 30);
+            for (int i = 1; i <= 40; i++) {
+                double x = lastX + i * 1.8;
+                double y = lastY + Math.tan(exitAngle) * i * 1.8;
+                scene.geometries.add(
+                        new Sphere(new Point(x, y, -110), 1.0)
+                                .setEmission(color)
+                                .setMaterial(new Material().setKD(0.4).setKS(0.6).setNShininess(50).setKT(0.4))
+                );
+            }
+        }
+
+        // Add a closer background screen to catch the dispersed light
+        scene.geometries.add(
+                new Triangle(new Point(140, -80, -150), new Point(140, 80, -150), new Point(140, 80, -70))
+                        .setEmission(new Color(15, 15, 15))
+                        .setMaterial(new Material().setKD(0.9).setKS(0.1).setNShininess(20)),
+                new Triangle(new Point(140, -80, -150), new Point(140, 80, -70), new Point(140, -80, -70))
+                        .setEmission(new Color(15, 15, 15))
+                        .setMaterial(new Material().setKD(0.9).setKS(0.1).setNShininess(20))
+        );
+
+        // Improved lighting
+        scene.lights.add(
+                new SpotLight(new Color(500, 500, 500), new Point(-150, 0, -110), new Vector(1, 0, 0))
+                        .setKL(0.0001).setKQ(0.0000001)
+        );
+
+        scene.setAmbientLight(new AmbientLight(new Color(20, 20, 20)));
+
+        // Adjusted camera for closer, better view
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, 0, 50)) // Much closer to the action
+                .setDirection(Point.ZERO, Vector.AXIS_Y)
+                .setVpDistance(150) // Reduced viewport distance
+                .setVpSize(200, 200) // Slightly smaller viewport for better focus
+                .setResolution(800, 800) // Higher resolution for better detail
+                .build()
+                .renderImage()
+                .writeToImage("physicallyAccuratePrismDispersion");
+    }
+
+    /**
+     * Test for creating a physically accurate and visually continuous prism rainbow effect.
+     * - The prism is visible, with a slight tint and reflectivity.
+     * - The rainbow beams are continuous: many closely-spaced, overlapping spheres, with smoothly interpolated colors.
+     * - The color spectrum blends from red to violet (not just 7 separated colors).
+     */
+    @Test
+    void prismWithContinuousBlendingRainbow() {
+        Scene scene = new Scene("Prism with Continuous Blending Rainbow")
+                .setAmbientLight(new AmbientLight(new Color(30, 30, 36))); // Slightly bluish ambient for prism visibility
+
+        // 1. Prism Construction (Visible, slightly tinted)
+        Material prismMat = new Material()
+                .setKD(0.18).setKS(0.5).setNShininess(200)
+                .setKT(0.7).setKR(0.08); // Slight reflectivity, less transparent
+        Color prismTint = new Color(48, 64, 128); // Very faint blue
+
+        // Front and Back faces
+        scene.geometries.add(
+                new Triangle(new Point(-30, -30, -100), new Point(30, -30, -100), new Point(0, 30, -100))
+                        .setEmission(prismTint.scale(0.24))
+                        .setMaterial(prismMat),
+                new Triangle(new Point(-30, -30, -120), new Point(30, -30, -120), new Point(0, 30, -120))
+                        .setEmission(prismTint.scale(0.24))
+                        .setMaterial(prismMat)
+        );
+        // Sides & Bottom (6 triangles)
+        scene.geometries.add(
+                // Left
+                new Triangle(new Point(-30, -30, -100), new Point(0, 30, -100), new Point(-30, -30, -120)).setMaterial(prismMat),
+                new Triangle(new Point(0, 30, -100), new Point(-30, -30, -120), new Point(0, 30, -120)).setMaterial(prismMat),
+                // Right
+                new Triangle(new Point(30, -30, -100), new Point(30, -30, -120), new Point(0, 30, -100)).setMaterial(prismMat),
+                new Triangle(new Point(0, 30, -100), new Point(30, -30, -120), new Point(0, 30, -120)).setMaterial(prismMat),
+                // Bottom
+                new Triangle(new Point(-30, -30, -100), new Point(-30, -30, -120), new Point(30, -30, -100)).setMaterial(prismMat),
+                new Triangle(new Point(30, -30, -100), new Point(-30, -30, -120), new Point(30, -30, -120)).setMaterial(prismMat)
+        );
+
+        // 2. Incoming White Light Beam (Ends at prism front face)
+        int whiteSteps = 36; double beamRadius = 1.1;
+        for (int i = 0; i < whiteSteps; i++) {
+            double x = -120 + i * 2.5; // x: -120 to -30
+            scene.geometries.add(
+                    new Sphere(new Point(x, 0, -110), beamRadius)
+                            .setEmission(new Color(210, 210, 210))
+                            .setMaterial(new Material().setKD(0.38).setKS(0.72).setNShininess(110).setKT(0.23))
+            );
+        }
+
+        // 3. Continuous Rainbow: many beams, smooth color blending, overlapping spheres
+        int rainbowBeams = 72; // More beams = smoother gradient
+        double minDispersion = 0.035; // radians, red (least refracted)
+        double maxDispersion = 0.19; // radians, violet (most refracted)
+        int insidePrismSteps = 34; // From front to back face
+        int outsidePrismSteps = 44; // After prism
+
+        for (int k = 0; k < rainbowBeams; k++) {
+            double t = k / (double)(rainbowBeams - 1);
+            Color color = interpolateRainbowColor(t); // Smooth color (see below)
+            double angle = minDispersion + t * (maxDispersion - minDispersion);
+
+            // Inside prism: colored beams diverge
+            for (int j = 0; j < insidePrismSteps; j++) {
+                double x = -30 + j * 1.5; // x: -30 -> +30
+                double y = Math.tan(angle) * (x + 30); // Dispersion
+                scene.geometries.add(
+                        new Sphere(new Point(x, y, -110), 0.87)
+                                .setEmission(color)
+                                .setMaterial(new Material().setKD(0.42).setKS(0.52).setNShininess(65).setKT(0.45))
+                );
+            }
+            // At exit face (x=30)
+            double lastX = 30;
+            double lastY = Math.tan(angle) * (lastX + 30);
+            double exitAngle = angle * 2; // Simulate wider dispersion after exit
+
+            // After prism: beams diverge more
+            for (int j = 0; j < outsidePrismSteps; j++) {
+                double x = lastX + j * 1.6;
+                double y = lastY + Math.tan(exitAngle) * j * 1.6;
+                scene.geometries.add(
+                        new Sphere(new Point(x, y, -110), 0.87)
+                                .setEmission(color)
+                                .setMaterial(new Material().setKD(0.42).setKS(0.52).setNShininess(55).setKT(0.45))
+                );
+            }
+        }
+
+        // 4. Background screen (to catch the rainbow)
+        scene.geometries.add(
+                new Triangle(new Point(140, -80, -150), new Point(140, 80, -150), new Point(140, 80, -70))
+                        .setEmission(new Color(24, 24, 32))
+                        .setMaterial(new Material().setKD(0.89).setKS(0.13).setNShininess(24)),
+                new Triangle(new Point(140, -80, -150), new Point(140, 80, -70), new Point(140, -80, -70))
+                        .setEmission(new Color(24, 24, 32))
+                        .setMaterial(new Material().setKD(0.89).setKS(0.13).setNShininess(24))
+        );
+
+        // 5. Lighting: strong white spotlight + gentle ambient
+        scene.lights.add(
+                new SpotLight(new Color(900, 900, 900), new Point(-150, 0, -110), new Vector(1, 0, 0))
+                        .setKL(0.00008).setKQ(0.00000008)
+        );
+
+        // 6. Camera
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, 0, 50))
+                .setDirection(new Vector(0, 0, -1))
+                .setVpDistance(150)
+                .setVpSize(200, 200)
+                .setResolution(900, 900)
+                .build()
+                .renderImage()
+                .writeToImage("prismWithContinuousBlendingRainbow");
+    }
+
+    /**
+     * Smoothly interpolates rainbow color for t in [0,1] using key rainbow stops,
+     * using the primitives.Color class.
+     */
+    private Color interpolateRainbowColor(double t) {
+        // Key stops: red, orange, yellow, green, blue, indigo, violet
+        Color[] stops = {
+                new Color(255, 0, 0),      // red
+                new Color(255, 127, 0),    // orange
+                new Color(255, 255, 0),    // yellow
+                new Color(0, 255, 0),      // green
+                new Color(0, 0, 255),      // blue
+                new Color(75, 0, 130),     // indigo
+                new Color(148, 0, 211)     // violet
+        };
+        double scaled = t * (stops.length - 1);
+        int idx = (int) Math.floor(scaled);
+        if (idx >= stops.length - 1) return stops[stops.length - 1];
+        double localT = scaled - idx;
+
+        // Interpolate each color channel individually
+        double r = stops[idx].rgb.d1() * (1 - localT) + stops[idx + 1].rgb.d1() * localT;
+        double g = stops[idx].rgb.d2() * (1 - localT) + stops[idx + 1].rgb.d2() * localT;
+        double b = stops[idx].rgb.d3() * (1 - localT) + stops[idx + 1].rgb.d3() * localT;
+        return new Color(r, g, b);
+    }
+
+    @Test
+    void prismRainbowExitFace() {
+        Scene scene = new Scene("Prism with Correct Exit Face Rainbow")
+                .setAmbientLight(new AmbientLight(new Color(30, 30, 36)));
+
+        // Prism vertices (z = -100 or -120, but beams are at z = -110)
+        Point A = new Point(-30, -30, -100);
+        Point B = new Point(30, -30, -100);
+        Point C = new Point(0, 30, -100);
+        Point D = new Point(-30, -30, -120);
+        Point E = new Point(30, -30, -120);
+        Point F = new Point(0, 30, -120);
+
+        // Prism faces, projected at z = -110 for beams
+        Material prismMat = new Material()
+                .setKD(0.18).setKS(0.5).setNShininess(200)
+                .setKT(0.7).setKR(0.08);
+        Color prismTint = new Color	(173, 216, 230);
+
+        // Prism geometry (for visualization only, at z=-100 and z=-120)
+        scene.geometries.add(
+                new Triangle(A, B, C).setEmission(prismTint.scale(0.24)).setMaterial(prismMat),
+                new Triangle(D, E, F).setEmission(prismTint.scale(0.24)).setMaterial(prismMat),
+                new Triangle(A, D, C).setMaterial(prismMat),
+                new Triangle(C, D, F).setMaterial(prismMat),
+                new Triangle(B, E, C).setMaterial(prismMat),
+                new Triangle(C, E, F).setMaterial(prismMat),
+                new Triangle(A, B, D).setMaterial(prismMat),
+                new Triangle(B, D, E).setMaterial(prismMat)
+        );
+
+        // 1. White beam: from left to entry face at (x = -15, y = 0, z = -110)
+        int whiteSteps = 72;
+        for (int i = 0; i < whiteSteps; i++) {
+            double x = -120 + i * ((-15 + 120.0) / (whiteSteps - 1)); // -120 to -15
+            scene.geometries.add(
+                    new Sphere(new Point(x, 0, -110), 1.1)
+                            .setEmission(new Color(210, 210, 210))
+                            .setMaterial(new Material().setKD(0.38).setKS(0.72).setNShininess(110).setKT(0.23))
+            );
+        }
+
+        // Floor
+        Geometry floor = new Plane(A.add(new Vector(0, -1, 0)), Vector.AXIS_Y)
+                .setEmission(new Color(176, 189, 196))
+                .setMaterial(new Material().setKD(0.9).setKS(0.1).setNShininess(10).setKR(0.15));
+
+
+        scene.geometries.add(floor);
+        //scene.geometries.add(new Polygon(new Point(-300, -30, -300), new Point(300, -30, -300), new Point(300, 0, -300), new Point(-300, 0, -300))
+        //        .setEmission(new Color(206, 218, 233)));
+
+        // 2. Rainbow beams: inside prism, from (x=-15, y=0, z=-110) to the exit face (from x=30,y=-30 to x=0,y=30, all at z=-110)
+        int rainbowBeams = 72;
+        double minDispersion = 0.035;
+        double maxDispersion = 0.19;
+        int insidePrismSteps = 40;
+        int outsidePrismSteps = 44;
+
+        /* Exit face (CFBE in z=-110 plane): from (x=30, y=-30) to (x=0, y=30) */
+        Point exitStart = new Point(15, 0, -110);
+        Point exitEnd = new Point(17, -4, -110);
+
+        for (int k = 0; k < rainbowBeams; k++) {
+            double t = k / (double)(rainbowBeams - 1);
+
+            Color color = interpolateRainbowColor(t);
+            double angle = minDispersion + t * (maxDispersion - minDispersion);
+
+            double xExit = exitStart.getX() + t * (exitEnd.getX() - exitStart.getX());
+            double yExit = exitStart.getY() + t * (exitEnd.getY() - exitStart.getY());
+
+            // 2a. Inside prism: from (x=-15, y=0, z=-110) to (xExit, yExit, z=-110)
+            for (int j = 0; j < insidePrismSteps; j++) {
+                double s = j / (double)(insidePrismSteps - 1);
+                double x = -15 + s * (xExit + 15);
+                double y = 0 + s * (yExit - 0);
+                double z = -110;
+
+                // Dispersion grows slightly inside, fanning downward
+                double y_disp = y - Math.tan(angle) * s * 8;
+                scene.geometries.add(
+                        new Sphere(new Point(x, y_disp, z), 0.87)
+                                .setEmission(color)
+                                .setMaterial(new Material().setKD(0.42).setKS(0.52).setNShininess(65).setKT(0.75))
+                );
+            }
+
+            // 2b. After prism: start from (xExit, yExit, z=-110), diverge more (wider rainbow)
+            double lastX = xExit;
+            double lastY = yExit - Math.tan(angle) * 8; // matches direction above
+            double z = -110;
+            double exitAngle = angle * 2.2; // Even wider after prism
+
+            for (int j = 1; j <= outsidePrismSteps; j++) {
+                double dx = j * 1.6;
+                double x = lastX + dx;
+                double y = lastY - Math.tan(exitAngle) * dx;
+                scene.geometries.add(
+                        new Sphere(new Point(x, y, z), 0.87)
+                                .setEmission(color)
+                                .setMaterial(new Material().setKD(0.42).setKS(0.52).setNShininess(55).setKT(0.75))
+                );
+            }
+        }
+
+        // 3. Background screen (to catch the rainbow)
+        scene.geometries.add(
+                new Triangle(new Point(140, -80, -180), new Point(140, 80, -180), new Point(140, 80, -70))
+                        .setEmission(new Color(24, 24, 32))
+                        .setMaterial(new Material().setKD(0.89).setKS(0.13).setNShininess(24)),
+                new Triangle(new Point(140, -80, -180), new Point(140, 80, -70), new Point(140, -80, -70))
+                        .setEmission(new Color(24, 24, 32))
+                        .setMaterial(new Material().setKD(0.89).setKS(0.13).setNShininess(24))
+        );
+
+        // 4. Lighting: strong white spotlight + gentle ambient
+        scene.lights.add(
+                new SpotLight(new Color(900, 900, 900), new Point(-150, 0, -110), new Vector(1, 0, 0))
+                        .setKL(0.00008).setKQ(0.00008)
+        );
+
+        // 5. Camera
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, 25, 50))
+                .setDirection(new Vector(0, -0.02, -1))
+                .setVpDistance(150)
+                .setVpSize(170, 170)
+                .setResolution(900, 900)
+                .build()
+                .renderImage()
+                .writeToImage("kindOfFinalPrism");
+    }
+
+    /**
+     * Test for creating a physically accurate and visually continuous prism rainbow effect.
+     * - The prism is visible, with a slight tint and reflectivity.
+     * - The rainbow beams are continuous: many closely-spaced, overlapping spheres, with smoothly interpolated colors.
+     * - The color spectrum blends from red to violet (not just 7 separated colors).
+     */
+    @Test
+    void prismThatDoesntGiveMeNightmares() {
+        Scene scene = new Scene("Prism That Doesn't Give Me Nightmares")
+                .setAmbientLight(new AmbientLight(new Color(30, 30, 36))); // Slightly bluish ambient for prism visibility
+
+        // 1. Prism Construction (Visible, slightly tinted)
+        Material prismMat = new Material()
+                .setKD(0.18).setKS(0.5).setNShininess(200)
+                .setKT(0.7).setKR(0.08); // Slight reflectivity, less transparent
+        Color prismTint = new Color(48, 64, 128); // Very faint blue
+
+        // Front and Back faces
+        scene.geometries.add(
+                new Triangle(new Point(-30, -30, -100), new Point(30, -30, -100), new Point(0, 30, -100))
+                        .setEmission(prismTint.scale(0.24))
+                        .setMaterial(prismMat),
+                new Triangle(new Point(-30, -30, -120), new Point(30, -30, -120), new Point(0, 30, -120))
+                        .setEmission(prismTint.scale(0.24))
+                        .setMaterial(prismMat)
+        );
+        // Sides & Bottom (6 triangles)
+        scene.geometries.add(
+                // Left
+                new Triangle(new Point(-30, -30, -100), new Point(0, 30, -100), new Point(-30, -30, -120)).setMaterial(prismMat),
+                new Triangle(new Point(0, 30, -100), new Point(-30, -30, -120), new Point(0, 30, -120)).setMaterial(prismMat),
+                // Right
+                new Triangle(new Point(30, -30, -100), new Point(30, -30, -120), new Point(0, 30, -100)).setMaterial(prismMat),
+                new Triangle(new Point(0, 30, -100), new Point(30, -30, -120), new Point(0, 30, -120)).setMaterial(prismMat),
+                // Bottom
+                new Triangle(new Point(-30, -30, -100), new Point(-30, -30, -120), new Point(30, -30, -100)).setMaterial(prismMat),
+                new Triangle(new Point(30, -30, -100), new Point(-30, -30, -120), new Point(30, -30, -120)).setMaterial(prismMat)
+        );
+
+        // 2. Incoming White Light Beam (Ends at prism front face)
+        int whiteSteps = 60; double beamRadius = 1.1;
+        for (int i = 0; i < whiteSteps; i++) {
+            double x = -120 + i * 1.75; // x: -120 to -30
+            scene.geometries.add(
+                    new Sphere(new Point(x, 0, -110), beamRadius)
+                            .setEmission(new Color(210, 210, 210))
+                            .setMaterial(new Material().setKD(0.38).setKS(0.72).setNShininess(110).setKT(0.23))
+            );
+        }
+
+        // 3. Continuous Rainbow: many beams, smooth color blending, overlapping spheres
+        int rainbowBeams = 72; // More beams = smoother gradient
+        double minDispersion = 0.035; // radians, red (least refracted)
+        double maxDispersion = 0.19; // radians, violet (most refracted)
+        int insidePrismSteps = 20; // From front to back face
+        int outsidePrismSteps = 44; // After prism
+
+        for (int k = 0; k < rainbowBeams; k++) {
+            double t = k / (double)(rainbowBeams - 1);
+            Color color = interpolateRainbowColor(t); // Smooth color (see below)
+            double angle = minDispersion + t * (maxDispersion - minDispersion);
+
+            // Inside prism: colored beams diverge
+            for (int j = 0; j < insidePrismSteps; j++) {
+                double x = -15 + j * 1.5; // x: -30 -> +30
+                double y = Math.tan(angle) * (x + 15); // Dispersion
+                scene.geometries.add(
+                        new Sphere(new Point(x, y, -110), 0.87)
+                                .setEmission(color)
+                                .setMaterial(new Material().setKD(0.42).setKS(0.52).setNShininess(65).setKT(0.45))
+                );
+            }
+            // At exit face (x=30)
+            double lastX = 30;
+            double lastY = Math.tan(angle) * (lastX + 30);
+            double exitAngle = angle * 2; // Simulate wider dispersion after exit
+
+            // After prism: beams diverge more
+            for (int j = 0; j < outsidePrismSteps; j++) {
+                double x = lastX + j * 1.6;
+                double y = lastY + Math.tan(exitAngle) * j * 1.6;
+                scene.geometries.add(
+                        new Sphere(new Point(x, y, -110), 0.87)
+                                .setEmission(color)
+                                .setMaterial(new Material().setKD(0.42).setKS(0.52).setNShininess(55).setKT(0.45))
+                );
+            }
+        }
+
+        // 4. Background screen (to catch the rainbow)
+        scene.geometries.add(
+                new Triangle(new Point(140, -80, -150), new Point(140, 80, -150), new Point(140, 80, -70))
+                        .setEmission(new Color(24, 24, 32))
+                        .setMaterial(new Material().setKD(0.89).setKS(0.13).setNShininess(24)),
+                new Triangle(new Point(140, -80, -150), new Point(140, 80, -70), new Point(140, -80, -70))
+                        .setEmission(new Color(24, 24, 32))
+                        .setMaterial(new Material().setKD(0.89).setKS(0.13).setNShininess(24))
+        );
+
+        // 5. Lighting: strong white spotlight + gentle ambient
+        scene.lights.add(
+                new SpotLight(new Color(900, 900, 900), new Point(-150, 0, -110), new Vector(1, 0, 0))
+                        .setKL(0.00008).setKQ(0.00000008)
+        );
+
+        // 6. Camera
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, 0, 50))
+                .setDirection(new Vector(0, 0, -1))
+                .setVpDistance(150)
+                .setVpSize(200, 200)
+                .setResolution(900, 900)
+                .build()
+                .renderImage()
+                .writeToImage("prismThatDoesntGiveMeNightmares");
+    }
 }
