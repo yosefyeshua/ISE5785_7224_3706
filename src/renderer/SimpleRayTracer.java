@@ -24,7 +24,7 @@ public class SimpleRayTracer extends RayTracerBase {
      * The maximum recursion level for calculating color contributions from reflections and refractions.
      * This limits the depth of recursive calls to prevent excessive computation.
      */
-    private static final int MAX_CALC_COLOR_LEVEL = 10;
+    private static final int MAX_CALC_COLOR_LEVEL = 30;
     /**
      * The minimum value for calculating color contributions.
      * If the attenuation factor is below this threshold, the contribution is considered negligible.
@@ -61,28 +61,6 @@ public class SimpleRayTracer extends RayTracerBase {
         return new Ray(intersection.point.add(delta), v);
     }
 
-    /**
-     * Determines if the point at the intersection is unshaded from a given light source.
-     *
-     * @param intersection the intersection point
-     * @param light        the light source
-     * @return true if the point is unshaded, false otherwise
-     */
-    private boolean unshaded(Intersection intersection, LightSource light) {
-        Vector pointToLight = intersection.l.scale(-1);
-        Ray shadowRay = newSecondaryRay(intersection, pointToLight);
-        List<Intersection> intersections = scene.geometries.calculateIntersections(shadowRay);
-        if (intersections == null || intersections.isEmpty()) {
-            return true;
-        }
-        for (Intersection i : intersections) {
-            if (i.point.distance(intersection.point) < light.getDistance(intersection.point)
-                    && i.geometry.getMaterial().kT.lowerThan(MIN_CALC_COLOR_K)) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * Computes the transparency coefficient for the light ray from the light source to the intersection point.
