@@ -40,7 +40,7 @@ public class DofTests {
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setApertureRadius(5)
                 .setFocalDistance(150)
-                .setDofSamples(4)
+                .setDofSamples(10)
                 .build();
 
         camera.renderImage()
