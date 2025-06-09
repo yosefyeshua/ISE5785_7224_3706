@@ -769,8 +769,7 @@ class LightsTests {
         double neckRadius = 4;
         double neckHeight = 8;
         double shoeRadius = 6;
-        double eyeRadius = 2.5;
-        double pupilRadius = 1.2;
+
 
         // Colors
         Color skinColor = new Color(80, 30, 30);
@@ -778,7 +777,6 @@ class LightsTests {
         Color green = new Color(40, 180, 40);
         Color black = new Color(20, 20, 20);
         Color white = new Color(240, 240, 240);
-        Color red = new Color(200, 30, 30);
 
         // Materials
         Material matte = new Material().setKD(0.7).setKS(0.1).setNShininess(20);
@@ -859,27 +857,25 @@ class LightsTests {
         scene.geometries.add(
                 new Sphere(new Point(0, personY, headZ), 13).setEmission(skinColor).setMaterial(matte)
         );
-
-        // Eyes (white cylinders, then pupils)
-        double eyeZ = headZ + 2;
-        double eyeY = personY + 6;
+        double eyeZ = headZ + 5;
+        double eyeY = personY + 11;
         double eyeX = 7;
-        double eyeLength = 6;
+        double eyeForward = 3;
+        double eyeRadius = 4;
+        double pupilRadius = 3;
+        double pupilForwardOffset = 1.5;
+        Material pupilmat = new Material().setKD(0.1).setKS(0.9).setNShininess(100).setKR(0.5); // Opaque black
+
         scene.geometries.add(
-                new Cylinder(eyeRadius + 1, new Ray(new Point(-eyeX, eyeY, eyeZ), new Vector(0, 1, 0)), eyeLength).setEmission(white).setMaterial(matte),
-                new Cylinder(eyeRadius +1, new Ray(new Point(eyeX, eyeY, eyeZ), new Vector(0, 1, 0)), eyeLength).setEmission(white).setMaterial(matte),
-                new Cylinder(pupilRadius-1, new Ray(new Point(-eyeX, eyeY + eyeLength - 3, eyeZ), new Vector(0, 1, 0)), 2.5).setEmission(black).setMaterial(matte),
-                new Cylinder(pupilRadius-1, new Ray(new Point(eyeX, eyeY + eyeLength - 3, eyeZ), new Vector(0, 1, 0)), 2.5).setEmission(black).setMaterial(matte)
+                // Eyeballs (white spheres)
+                new Sphere(eyeRadius, new Point(-eyeX, eyeY, eyeZ)).setEmission(white).setMaterial(matte),
+                new Sphere(eyeRadius, new Point(eyeX, eyeY, eyeZ)).setEmission(white).setMaterial(matte),
+
+                // Pupils (black spheres)
+                new Sphere(pupilRadius, new Point(-eyeX, eyeY + pupilForwardOffset, eyeZ)).setEmission(black).setMaterial(pupilmat),
+                new Sphere(pupilRadius, new Point(eyeX, eyeY + pupilForwardOffset, eyeZ)).setEmission(black).setMaterial(pupilmat)
         );
 
-        // Mouth (red triangle)
-        scene.geometries.add(
-                new Triangle(
-                        new Point(-4, personY + 10, headZ - 7),
-                        new Point(4, personY + 10, headZ - 7),
-                        new Point(0, personY + 10, headZ - 2)
-                ).setEmission(red).setMaterial(matte)
-        );
 
         // Kippah (small blue sphere on top back of head)
         double kippahRadius = 6;
@@ -915,10 +911,10 @@ class LightsTests {
                 .setVpDistance(30)
                 .setResolution(2000, 2000)
                 .setFocalDistance(cameraLoc.distance(lookAt))
-                .setApertureRadius(2)
-                .setDofSamples(10)
-                .setMultithreading(4)
-                .setDebugPrint(0.05)
+                .setApertureRadius(0.5)
+                .setDofSamples(3)
+                .setMultithreading(3)
+                .setDebugPrint(2)
                 .build();
 
         camera.renderImage()

@@ -31,7 +31,7 @@ class RenderTests {
     * In this  scene we have a house which mean a polygon and triangle
     */
    @Test
-   public void yosefTset(){
+   public void yosefTest(){
       Scene scene= new Scene("house").setBackground(Color.LIGHT_BLUE)
          .setAmbientLight(new AmbientLight(Color.LIGHT_GRAY));
       scene.geometries

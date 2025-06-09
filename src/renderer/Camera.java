@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
-import java.util.stream.IntStream;
+import java.util.stream.*;
 
 
 /**
@@ -248,11 +248,9 @@ public class Camera implements Cloneable {
      * Saves the image to a file.
      *
      * @param filename name of the file
-     * @return the camera instance for chaining
      */
-    public Camera writeToImage(String filename) {
+    public void writeToImage(String filename) {
         imageWriter.writeToImage(filename);
-        return this;
     }
     /**
      * Constructs multiple rays from the aperture toward the focal point.
