@@ -97,6 +97,11 @@ public class Camera implements Cloneable {
      */
     private int dofSamples = 0;
 
+    /**
+     * The number of anti-aliasing samples per pixel.
+     */
+    private int aaSamples = 1;
+
     //MT
     /** Amount of threads to use fore rendering image by the camera */
     private int threadsCount = 0;
@@ -140,6 +145,33 @@ public class Camera implements Cloneable {
             pij = pij.add(vRight.scale(xJ));
         if (!Util.isZero(yI))
             pij = pij.add(vUp.scale(yI));
+        return new Ray(p0, pij.subtract(p0));
+    }
+
+    /**
+     * Constructs a ray from the camera through a specific pixel on the view plane
+     * with anti-aliasing.
+     *
+     * @param nX number of columns (horizontal resolution)
+     * @param nY number of rows (vertical resolution)
+     * @param j  pixel column index (0-based from left)
+     * @param i  pixel row index (0-based from top)
+     * @return a {@link Ray} from the camera through the specified pixel with anti-aliasing
+     */
+    public Ray constructRayAA(int nX, int nY, int j, int i) {
+        // Generate random offset in [0,1) for sub-pixel sampling
+        double offsetJ = Math.random();
+        double offsetI = Math.random();
+        // Use the random offsets to create a sub-pixel target
+        double xJ = (j + offsetJ - (nX - 1) / 2.0) * (width / nX);
+        double yI = -(i + offsetI - (nY - 1) / 2.0) * (height / nY);
+
+        Point pij = pIJ;
+        if (!Util.isZero(xJ))
+            pij = pij.add(vRight.scale(xJ));
+        if (!Util.isZero(yI))
+            pij = pij.add(vUp.scale(yI));
+
         return new Ray(p0, pij.subtract(p0));
     }
 
@@ -291,21 +323,29 @@ public class Camera implements Cloneable {
      * @param column Current column.
      * @param row Current row.
      */
-    private void castRay( int column, int row) {
+    private void castRay(int column, int row) {
+        Color color = Color.BLACK;
         Ray ray = constructRay(this.nX, this.nY, row, column);
+        for (int s = 0; s < aaSamples; s++) {
+            // Use jittered ray construction for AA
+            if (aaSamples > 1)
+                ray = constructRayAA(this.nX, this.nY, row, column);
 
-        if (apertureRadius > 0 && focalDistance > 0 && dofSamples > 1) {
-            List<Ray> rays = constructDofRays(ray);
-            Color color = Color.BLACK;
-            for (Ray r : rays) {
-                color = color.add(rayTracer.traceRay(r));
+            if (apertureRadius > 0 && focalDistance > 0 && dofSamples > 1) {
+                List<Ray> rays = constructDofRays(ray);
+                Color dofColor = Color.BLACK;
+                for (Ray r : rays) {
+                    dofColor = dofColor.add(rayTracer.traceRay(r));
+                }
+                dofColor = dofColor.scale(1.0 / rays.size());
+                color = color.add(dofColor);
+            } else {
+                color = color.add(rayTracer.traceRay(ray));
             }
-            color = color.scale(1.0 / rays.size());
-            imageWriter.writePixel(row, column, color);
-        } else {
-            Color color = rayTracer.traceRay(ray);
-            imageWriter.writePixel(row, column, color);
         }
+
+        color = color.scale(1.0 / aaSamples);
+        imageWriter.writePixel(row, column, color);
         pixelManager.pixelDone();
     }
 
@@ -465,6 +505,21 @@ public class Camera implements Cloneable {
             if (dofSamples < 0)
                 throw new IllegalArgumentException("Number of depth of field samples must be non-negative");
             camera.dofSamples = dofSamples;
+            return this;
+        }
+
+
+        /**
+         * Sets the number of anti-aliasing samples per pixel.
+         *
+         * @param aaSamples the number of anti-aliasing samples
+         * @return this builder instance for chaining
+         * @throws IllegalArgumentException if aaSamples is negative
+         */
+        public Builder setAaSamples(int aaSamples) {
+            if (aaSamples < 0)
+                throw new IllegalArgumentException("Number of anti-aliasing samples must be non-negative");
+            camera.aaSamples = aaSamples;
             return this;
         }
 
