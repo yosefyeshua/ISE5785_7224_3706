@@ -3,7 +3,7 @@ package lighting;
 import primitives.Color;
 
 /**
- * {@code Light} is an abstract base class representing a light source in the scene.
+ * {@code Light} is an abstract base class representing a light source in the scene
  * <p>
  * It provides a common interface for retrieving light intensity, and is extended by
  * specific types of lights such as directional, point, and spotlights.
