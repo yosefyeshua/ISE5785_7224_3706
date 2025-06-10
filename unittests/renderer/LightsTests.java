@@ -1531,6 +1531,7 @@ class LightsTests {
                 .setVpDistance(150)
                 .setVpSize(170, 170)
                 .setResolution(900, 900)
+                .setAaSamples(5)
                 .setMultithreading(10)
                 .setDebugPrint(5)
                 .build()

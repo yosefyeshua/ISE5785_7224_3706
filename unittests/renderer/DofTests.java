@@ -36,11 +36,14 @@ public class DofTests {
                 .setDirection(new Vector(0, 0, 1), new Vector(0, -1, 0))
                 .setVpSize(150, 150)
                 .setVpDistance(100)
-                .setResolution(500, 500)
+                .setResolution(4000, 4000)
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setApertureRadius(5)
-                .setFocalDistance(150)
-                .setDofSamples(10)
+                .setFocalDistance(new Point(15, 0, 150).distance(new Point(0, 0, 0)))
+                .setDofSamples(5)
+                .setAaSamples(5)
+                .setMultithreading(8)
+                .setDebugPrint(0.1)
                 .build();
 
         camera.renderImage()
@@ -260,8 +263,8 @@ public class DofTests {
                 .setFocalDistance(cameraLoc.distance(lookAt))
                 .setApertureRadius(0.4)
                 .setDofSamples(5)
-                .setMultithreading(3)
-                .setDebugPrint(2)
+                .setMultithreading(8)
+                .setDebugPrint(5)
                 .build();
 
         camera.renderImage()
