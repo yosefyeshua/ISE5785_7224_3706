@@ -325,10 +325,11 @@ public class Camera implements Cloneable {
      */
     private void castRay(int column, int row) {
         Color color = Color.BLACK;
-
+        Ray ray = constructRay(this.nX, this.nY, row, column);
         for (int s = 0; s < aaSamples; s++) {
             // Use jittered ray construction for AA
-            Ray ray = constructRayAA(this.nX, this.nY, row, column);
+            if (aaSamples > 1)
+                ray = constructRayAA(this.nX, this.nY, row, column);
 
             if (apertureRadius > 0 && focalDistance > 0 && dofSamples > 1) {
                 List<Ray> rays = constructDofRays(ray);
