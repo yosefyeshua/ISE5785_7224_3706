@@ -70,6 +70,68 @@ public class AaTests {
                 ).setEmission(mirrorColor).setMaterial(mirrorMat)
         );
 
+        // huge box (6 huge poligons) to simulate infinite mirrors (the box  is circle around the mirrors)
+        double boxSize = 2000;
+        Color boxColor = new Color(1, 1, 1); // gray color for the box
+        Material boxMat = new Material().setKD(0.1).setKS(0.4).setNShininess(100).setKR(1); // reflective
+        scene.geometries.add(
+                // Bottom
+                new Polygon(
+                    new Point(-boxSize, -boxSize, -boxSize),
+                    new Point(boxSize, -boxSize, -boxSize),
+                    new Point(boxSize, boxSize, -boxSize),
+                    new Point(-boxSize, boxSize, -boxSize)
+                ).setEmission(Color.MAGENTA).setMaterial(boxMat),
+                // Top
+                new Polygon(
+                    new Point(-boxSize, -boxSize, boxSize),
+                    new Point(boxSize, -boxSize, boxSize),
+                    new Point(boxSize, boxSize, boxSize),
+                    new Point(-boxSize, boxSize, boxSize)
+                ).setEmission(Color.BLUE).setMaterial(boxMat),
+                // Left
+                new Polygon(
+                    new Point(-boxSize, -boxSize, -boxSize),
+                    new Point(-boxSize, -boxSize, boxSize),
+                    new Point(-boxSize, boxSize, boxSize),
+                    new Point(-boxSize, boxSize, -boxSize)
+                ).setEmission(Color.GREEN).setMaterial(boxMat),
+                // Right
+                new Polygon(
+                    new Point(boxSize, -boxSize, -boxSize),
+                    new Point(boxSize, -boxSize, boxSize),
+                    new Point(boxSize, boxSize, boxSize),
+                    new Point(boxSize, boxSize, -boxSize)
+                ).setEmission(Color.RED).setMaterial(boxMat),
+                // Front
+                new Polygon(
+                    new Point(-boxSize, -boxSize, -boxSize),
+                    new Point(boxSize, -boxSize, -boxSize),
+                    new Point(boxSize, boxSize, -boxSize),
+                    new Point(-boxSize, boxSize, -boxSize)
+                ).setEmission(Color.CYAN).setMaterial(boxMat),
+                // Back
+                new Polygon(
+                    new Point(-boxSize, -boxSize, boxSize),
+                    new Point(boxSize, -boxSize, boxSize),
+                    new Point(boxSize, boxSize, boxSize),
+                    new Point(-boxSize, boxSize, boxSize)
+                ).setEmission(boxColor).setMaterial(boxMat)
+        );
+
+//        double sphereRadius = 4000;
+//        scene.geometries.add(
+//                new Sphere(new Point(0, 0, 0), sphereRadius)
+//                        .setEmission(new Color(20,20,20)).setMaterial(new Material().setKD(0.1).setKS(0.4).setNShininess(100).setKR(0.5))
+//        );
+
+        // mirrors point light (above the mirrors) - color 1- light pink and color 2 - light blue
+        scene.lights.add(
+                new PointLight(new Color(255, 200, 200), new Point(0, mirrorY1 + mirrorHeight + 50, mirrorZ + mirrorHeight / 2)).setKL(0.0005).setKQ(0.0001));
+        scene.lights.add(
+                new PointLight(new Color(200, 200, 255), new Point(0, mirrorY2 - mirrorHeight - 50, mirrorZ + mirrorHeight / 2)).setKL(0.0005).setKQ(0.0001)
+        );
+
         // Person parameters (centered at y=0, z=ground)
         double personY = 0;
         double personZ = 10;
@@ -92,6 +154,7 @@ public class AaTests {
         Color green = new Color(40, 180, 40);
         Color black = new Color(20, 20, 20);
         Color white = new Color(240, 240, 240);
+        Color badgeColor = new Color(200, 200, 0);
 
         // Materials
         Material matte = new Material().setKD(0.7).setKS(0.1).setNShininess(20);
@@ -205,15 +268,15 @@ public class AaTests {
                 new PointLight(new Color(255, 255 ,255), new Point(30, 100, 300)).setKL(0.0005).setKQ(0.0001)
         );
 
-        // floor
-        double floorZ = -50;
-        scene.geometries.add(
-                new Plane(new Point(0,0,-50), new Vector(0, 0, 1)
-                ).setEmission(new Color(200, 200, 200)).setMaterial(new Material().setKD(0.5).setKS(0.1).setNShininess(20).setKR(0.5)
-                ));
+//        // floor color badge
+//        double floorZ = -50;
+//        scene.geometries.add(
+//                new Plane(new Point(0,0,-50), new Vector(0, 0, 1)
+//                ).setEmission(badgeColor).setMaterial(new Material().setKD(0.5).setKS(0.1).setNShininess(20).setKR(0.3)
+//                ));
 
         // Camera: just behind the eyes, looking at the mirror at y=mirrorY2, with a small vpDistance
-        Point cameraLoc = new Point(-50, eyeY + 8, eyeZ);
+        Point cameraLoc = new Point(-30, eyeY +15, eyeZ);
         Point lookAt = new Point(50, mirrorY2, eyeZ); // looking at the far mirror
         Vector up = new Vector(0, 0, 1);
 
@@ -223,8 +286,7 @@ public class AaTests {
                 .setDirection(lookAt, up)
                 .setVpSize(100, 150)
                 .setVpDistance(30)
-                .setResolution(2000, 2000)
-                .se
+                .setResolution(1550, 1550)
                 .setMultithreading(3)
                 .setDebugPrint(2)
                 .build();
