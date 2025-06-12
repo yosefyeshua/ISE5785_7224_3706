@@ -134,44 +134,22 @@ public class Camera implements Cloneable {
      * @param i  pixel row index (0-based from top)
      * @return a {@link Ray} from the camera through the specified pixel
      */
-    public Ray constructRay(int nX, int nY, int j, int i) {
+    public Ray constructRay(int nX, int nY, int j, int i, boolean isAA) {
         Point pij = pIJ;
         double rY = height / nY;
         double rX = width / nX;
         double xJ = (j - (nX - 1) / 2.0) * rX;
         double yI = -(i - (nY - 1) / 2.0) * rY;
 
+        if (isAA) {
+            xJ = xJ + Util.random(-0.5, 0.5) * rX;
+            yI = yI + Util.random(-0.5, 0.5) * rY;
+        }
+
         if (!Util.isZero(xJ))
             pij = pij.add(vRight.scale(xJ));
         if (!Util.isZero(yI))
             pij = pij.add(vUp.scale(yI));
-        return new Ray(p0, pij.subtract(p0));
-    }
-
-    /**
-     * Constructs a ray from the camera through a specific pixel on the view plane
-     * with anti-aliasing.
-     *
-     * @param nX number of columns (horizontal resolution)
-     * @param nY number of rows (vertical resolution)
-     * @param j  pixel column index (0-based from left)
-     * @param i  pixel row index (0-based from top)
-     * @return a {@link Ray} from the camera through the specified pixel with anti-aliasing
-     */
-    public Ray constructRayAA(int nX, int nY, int j, int i) {
-        // Generate random offset in [0,1) for sub-pixel sampling
-        double offsetJ = Math.random();
-        double offsetI = Math.random();
-        // Use the random offsets to create a sub-pixel target
-        double xJ = (j + offsetJ - (nX - 1) / 2.0) * (width / nX);
-        double yI = -(i + offsetI - (nY - 1) / 2.0) * (height / nY);
-
-        Point pij = pIJ;
-        if (!Util.isZero(xJ))
-            pij = pij.add(vRight.scale(xJ));
-        if (!Util.isZero(yI))
-            pij = pij.add(vUp.scale(yI));
-
         return new Ray(p0, pij.subtract(p0));
     }
 
@@ -325,11 +303,11 @@ public class Camera implements Cloneable {
      */
     private void castRay(int column, int row) {
         Color color = Color.BLACK;
-        Ray ray = constructRay(this.nX, this.nY, row, column);
+        Ray ray = constructRay(this.nX, this.nY, row, column, false);
         for (int s = 0; s < aaSamples; s++) {
             // Use jittered ray construction for AA
             if (aaSamples > 1)
-                ray = constructRayAA(this.nX, this.nY, row, column);
+                ray = constructRay(this.nX, this.nY, row, column, true);
 
             if (apertureRadius > 0 && focalDistance > 0 && dofSamples > 1) {
                 List<Ray> rays = constructDofRays(ray);
