@@ -7,7 +7,6 @@ import primitives.Util;
 import primitives.Vector;
 import scene.Scene;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -249,7 +248,7 @@ public class Camera implements Cloneable {
      * @return List of rays from random aperture positions toward the focal point.
      */
     private List<Ray> constructDofRays(Ray ray) {
-        List<Ray> rays = new ArrayList<>();
+        List<Ray> rays = new LinkedList<>();
             double t = focalDistance / vTo.dotProduct(ray.getDirection());
         Point focalPoint = ray.getPoint(t);
 
@@ -268,7 +267,7 @@ public class Camera implements Cloneable {
      * @param ray The primary ray through the view plane pixel.
      * @return The averaged color from multiple rays through the aperture.
      */
-    private Color calcDOFcolor(Ray ray){
+    private Color calcDOFcolor(Ray ray) {
         List<Ray> rays = constructDofRays(ray);
         Color dofColor = Color.BLACK;
         for (Ray r : rays) {
@@ -320,7 +319,7 @@ public class Camera implements Cloneable {
 
     /**
      * Constructs a ray from the camera through a specific pixel on the view plane,
-     * using adaptive super sampling for anti-aliasing.
+     * using adaptive super sampling for antialiasing.
      *
      * @param i pixel row index (0-based from top)
      * @param j pixel column index (0-based from left)
@@ -336,39 +335,38 @@ public class Camera implements Cloneable {
         Ray r0,r1,r2,r3,r4;
         double midX = (minX + maxX) / 2;
         double midY = (minY + maxY) / 2;
-        r0 = constructRay(nX, nY, j, i, midX, midY);
+        r0 = constructRay(nX, nY, i, j, midX, midY);
         c0 = rayTracer.traceRay(r0);
-        if (depth >= 4) {
-            if(dofSamples > 0 && apertureRadius > 0 && focalDistance > 0)
-                c0 = calcDOFcolor(r0);
+        if(dofSamples > 0 && apertureRadius > 0 && focalDistance > 0)
+            c0 = calcDOFcolor(r0);
+        if (depth >= 2) {
             return c0;
         }
 
-        r1 = constructRay(nX, nY, j, i, minX, minY);
-        r2 = constructRay(nX, nY, j, i, maxX, minY);
-        r3 = constructRay(nX, nY, j, i, minX, maxY);
-        r4 = constructRay(nX, nY, j, i, maxX, maxY);
+        r1 = constructRay(nX, nY, i, j, minX, minY);
+        r2 = constructRay(nX, nY, i, j, maxX, minY);
+        r3 = constructRay(nX, nY, i, j, minX, maxY);
+        r4 = constructRay(nX, nY, i, j, maxX, maxY);
 
         c1 = rayTracer.traceRay(r1);
         c2 = rayTracer.traceRay(r2);
         c3 = rayTracer.traceRay(r3);
         c4 = rayTracer.traceRay(r4);
 
-        if (c1 == c0 && c2 == c0 && c3 == c0 && c4 == c0) {
-            if(dofSamples > 0 && apertureRadius > 0 && focalDistance > 0)
-                c0 = calcDOFcolor(r0);
+        if (c1.equals(c0) && c2.equals(c0) && c3.equals(c0) && c4.equals(c0))
             return c0;
+        else {
+            if(!c1.equals(c0))
+                c1 = adaptiveSuperSampling(i, j, depth + 1, minX, midX, minY, midY);
+            if(!c2.equals(c0))
+                c2 = adaptiveSuperSampling(i, j, depth + 1, midX, maxX, minY, midY);
+            if(!c3.equals(c0))
+                c3 = adaptiveSuperSampling(i, j, depth + 1, minX, midX, midY, maxY);
+            if(!c4.equals(c0))
+                c4 = adaptiveSuperSampling(i, j, depth + 1, midX, maxX, midY, maxY);
         }
 
-
-        Color topLeft     = adaptiveSuperSampling(i, j, depth + 1, minX, midX, minY, midY);
-        Color topRight    = adaptiveSuperSampling(i, j, depth + 1, midX, maxX, minY, midY);
-        Color bottomLeft  = adaptiveSuperSampling(i, j, depth + 1, minX, midX, midY, maxY);
-        Color bottomRight = adaptiveSuperSampling(i, j, depth + 1, midX, maxX, midY, maxY);
-
-        if(dofSamples > 0 && apertureRadius > 0 && focalDistance > 0)
-            c0 = calcDOFcolor(r0);
-        return c0.add(topLeft,topRight, bottomLeft, bottomRight).reduce(4);
+        return c0.add(c1,c2, c3, c4).reduce(5);
     }
 
 

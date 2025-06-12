@@ -154,30 +154,14 @@ public class Color {
    }
 
 
-    /**
-     * Average this color with one or more other colors
-     * @param  colors one or more other colors to average with
-     * @return        new Color object which is a result of the operation
-     */
-   public Color average(Color... colors) {
-      double rr = rgb.d1();
-      double rg = rgb.d2();
-      double rb = rgb.d3();
-      for (Color c : colors) {
-         rr += c.rgb.d1();
-         rg += c.rgb.d2();
-         rb += c.rgb.d3();
-      }
-      return new Color(rr / (colors.length + 1), rg / (colors.length + 1), rb / (colors.length + 1));
-   }
 
    @Override
    public boolean equals(Object obj) {
       if (this == obj) return true;
       return (obj instanceof Color other)
-              && (Math.abs(rgb.d1() - other.rgb.d1()) < 10)
-              && (Math.abs(rgb.d2() - other.rgb.d2()) < 10)
-              && (Math.abs(rgb.d3() - other.rgb.d3()) < 10);
+              && (Math.abs(rgb.d1() - other.rgb.d1()) < 1)
+              && (Math.abs(rgb.d2() - other.rgb.d2()) < 1)
+              && (Math.abs(rgb.d3() - other.rgb.d3()) < 1);
    }
 
    @Override
