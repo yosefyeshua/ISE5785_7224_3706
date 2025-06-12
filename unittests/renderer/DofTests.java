@@ -41,14 +41,13 @@ public class DofTests {
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setApertureRadius(5)
                 .setFocalDistance(new Point(15, 0, 150).distance(new Point(0, 0, 0)))
-                .setDofSamples(50)
                 .setAaSamples(50)
                 .setMultithreading(8)
                 .setDebugPrint(0.1)
                 .build();
 
         camera.renderImage()
-                .writeToImage("dof_test_with_builder");
+                .writeToImage("dof_test_with_builder_aa");
     }
 
     @Test

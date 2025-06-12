@@ -106,6 +106,7 @@ public class Ray {
         return closestIntersection;
     }
 
+
     @Override
     public String toString() {
         return "Ray{" +
