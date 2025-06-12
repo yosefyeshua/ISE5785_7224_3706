@@ -334,12 +334,13 @@ public class Camera implements Cloneable {
     private Color adaptiveSuperSampling(int i, int j, int depth, double minX, double maxX, double minY, double maxY) {
         Color c0,c1,c2,c3,c4;
         Ray r0,r1,r2,r3,r4;
-        r0 = constructRay(nX, nY, j, i, minX, minY);
-        if (apertureRadius > 0 && focalDistance > 0 && dofSamples > 1)
-            c0 = calcDOFcolor(r0);
-        else
-            c0 = rayTracer.traceRay(r0);
+        double midX = (minX + maxX) / 2;
+        double midY = (minY + maxY) / 2;
+        r0 = constructRay(nX, nY, j, i, midX, midY);
+        c0 = rayTracer.traceRay(r0);
         if (depth >= 4) {
+            if(dofSamples > 0 && apertureRadius > 0 && focalDistance > 0)
+                c0 = calcDOFcolor(r0);
             return c0;
         }
 
@@ -348,32 +349,26 @@ public class Camera implements Cloneable {
         r3 = constructRay(nX, nY, j, i, minX, maxY);
         r4 = constructRay(nX, nY, j, i, maxX, maxY);
 
-        if (apertureRadius > 0 && focalDistance > 0 && dofSamples > 1) {
-            c1 = calcDOFcolor(r1);
-            c2 = calcDOFcolor(r2);
-            c3 = calcDOFcolor(r3);
-            c4 = calcDOFcolor(r4);
-        } else {
-            c1 = rayTracer.traceRay(r1);
-            c2 = rayTracer.traceRay(r2);
-            c3 = rayTracer.traceRay(r3);
-            c4 = rayTracer.traceRay(r4);
-        }
-
+        c1 = rayTracer.traceRay(r1);
+        c2 = rayTracer.traceRay(r2);
+        c3 = rayTracer.traceRay(r3);
+        c4 = rayTracer.traceRay(r4);
 
         if (c1 == c0 && c2 == c0 && c3 == c0 && c4 == c0) {
+            if(dofSamples > 0 && apertureRadius > 0 && focalDistance > 0)
+                c0 = calcDOFcolor(r0);
             return c0;
         }
 
-        double midX = (minX + maxX) / 2;
-        double midY = (minY + maxY) / 2;
 
         Color topLeft     = adaptiveSuperSampling(i, j, depth + 1, minX, midX, minY, midY);
         Color topRight    = adaptiveSuperSampling(i, j, depth + 1, midX, maxX, minY, midY);
         Color bottomLeft  = adaptiveSuperSampling(i, j, depth + 1, minX, midX, midY, maxY);
         Color bottomRight = adaptiveSuperSampling(i, j, depth + 1, midX, maxX, midY, maxY);
 
-        return c0.average(topLeft, topRight, bottomLeft, bottomRight);
+        if(dofSamples > 0 && apertureRadius > 0 && focalDistance > 0)
+            c0 = calcDOFcolor(r0);
+        return c0.add(topLeft,topRight, bottomLeft, bottomRight).reduce(4);
     }
 
 
@@ -396,12 +391,12 @@ public class Camera implements Cloneable {
                     ray = constructRay(this.nX, this.nY, row, column, Util.random(-0.5, 0.5), Util.random(-0.5, 0.5));
 
                 if (apertureRadius > 0 && focalDistance > 0 && dofSamples > 1) {
-                    color.add(calcDOFcolor(ray));
+                    color = color.add(calcDOFcolor(ray));
                 } else {
                     color = color.add(rayTracer.traceRay(ray));
                 }
             }
-            color = color.scale(1.0 / aaSamples);
+            color = color.reduce(aaSamples);
         }
         imageWriter.writePixel(row, column, color);
         pixelManager.pixelDone();

@@ -39,15 +39,16 @@ public class DofTests {
                 .setVpDistance(100)
                 .setResolution(600, 600)
                 .setRayTracer(scene, RayTracerType.SIMPLE)
-                .setApertureRadius(5)
+                .setApertureRadius(10)
                 .setFocalDistance(new Point(15, 0, 150).distance(new Point(0, 0, 0)))
-                .setAaSamples(50)
+                .setDofSamples(5)
+                .setAdaptiveSuperSampling(true)
                 .setMultithreading(8)
                 .setDebugPrint(0.1)
                 .build();
 
         camera.renderImage()
-                .writeToImage("dof_test_with_builder_aa");
+                .writeToImage("dof_test_with_builder_aa_6");
     }
 
     @Test
