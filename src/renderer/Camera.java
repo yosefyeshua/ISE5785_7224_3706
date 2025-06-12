@@ -332,7 +332,7 @@ public class Camera implements Cloneable {
                 ray = constructRayAA(this.nX, this.nY, row, column);
 
             if (apertureRadius > 0 && focalDistance > 0 && dofSamples > 1) {
-                List<Ray> rays = constructDofRays(ray);
+                    List<Ray> rays = constructDofRays(ray);
                 Color dofColor = Color.BLACK;
                 for (Ray r : rays) {
                     dofColor = dofColor.add(rayTracer.traceRay(r));
