@@ -126,34 +126,6 @@ public class Camera implements Cloneable {
 
 
     /**
-     * Constructs a ray from the camera through a specific pixel on the view plane.
-     *
-     * @param nX number of columns (horizontal resolution)
-     * @param nY number of rows (vertical resolution)
-     * @param j  pixel column index (0-based from left)
-     * @param i  pixel row index (0-based from top)
-     * @return a {@link Ray} from the camera through the specified pixel
-     */
-    public Ray constructRay(int nX, int nY, int j, int i, boolean isAA) {
-        Point pij = pIJ;
-        double rY = height / nY;
-        double rX = width / nX;
-        double xJ = (j - (nX - 1) / 2.0) * rX;
-        double yI = -(i - (nY - 1) / 2.0) * rY;
-
-        if (isAA) {
-            xJ = xJ + Util.random(-0.5, 0.5) * rX;
-            yI = yI + Util.random(-0.5, 0.5) * rY;
-        }
-
-        if (!Util.isZero(xJ))
-            pij = pij.add(vRight.scale(xJ));
-        if (!Util.isZero(yI))
-            pij = pij.add(vUp.scale(yI));
-        return new Ray(p0, pij.subtract(p0));
-    }
-
-    /**
      * Returns the width of the view plane.
      *
      * @return the view plane width
@@ -263,6 +235,8 @@ public class Camera implements Cloneable {
         imageWriter.writeToImage(filename);
         return this;
     }
+
+
     /**
      * Constructs multiple rays from the aperture toward the focal point.
      *
@@ -271,11 +245,11 @@ public class Camera implements Cloneable {
      */
     private List<Ray> constructDofRays(Ray ray) {
         List<Ray> rays = new ArrayList<>();
-        double t = focalDistance / vTo.dotProduct(ray.getDirection());
+            double t = focalDistance / vTo.dotProduct(ray.getDirection());
         Point focalPoint = ray.getPoint(t);
 
         for (int i = 0; i < dofSamples; i++) {
-            Point aperturePoint = getRandomAperturePoint();
+                Point aperturePoint = getRandomAperturePoint();
             Vector dir = focalPoint.subtract(aperturePoint).normalize();
             rays.add(new Ray(aperturePoint, dir));
         }
@@ -296,6 +270,48 @@ public class Camera implements Cloneable {
     }
 
     /**
+     * Constructs a ray from the camera through a specific pixel on the view plane.
+     *
+     * @param nX number of columns (horizontal resolution)
+     * @param nY number of rows (vertical resolution)
+     * @param j  pixel column index (0-based from left)
+     * @param i  pixel row index (0-based from top)
+     * @return a {@link Ray} from the camera through the specified pixel
+     */
+    public Ray constructRay(int nX, int nY, int j, int i){
+        return constructRay(nX, nY, j, i, 0,0);
+    }
+
+    /**
+     * Constructs a ray from the camera through a specific pixel on the view plane.
+     *
+     * @param nX number of columns (horizontal resolution)
+     * @param nY number of rows (vertical resolution)
+     * @param j  pixel column index (0-based from left)
+     * @param i  pixel row index (0-based from top)
+     * @param xOff offset in the X direction for anti-aliasing and adaptive super sampling
+     * @param yOff offset in the Y direction for anti-aliasing and adaptive super sampling
+     * @return a {@link Ray} from the camera through the specified pixel
+     */
+    public Ray constructRay(int nX, int nY, int j, int i, double xOff, double yOff){
+        Point pij = pIJ;
+        double rY = height / nY;
+        double rX = width / nX;
+        double xJ = (j + xOff - (nX - 1) / 2.0) * rX;
+        double yI = -(i + yOff - (nY - 1) / 2.0) * rY;
+        xJ = xJ + Util.random(-0.5, 0.5) * rX;
+        yI = yI + Util.random(-0.5, 0.5) * rY;
+        if (!Util.isZero(xJ))
+            pij = pij.add(vRight.scale(xJ));
+        if (!Util.isZero(yI))
+            pij = pij.add(vUp.scale(yI));
+        return new Ray(p0, pij.subtract(p0));
+    }
+
+
+
+
+    /**
      * Shoots a ray through a pixel, optionally applying depth of field.
      *
      * @param column Current column.
@@ -303,11 +319,11 @@ public class Camera implements Cloneable {
      */
     private void castRay(int column, int row) {
         Color color = Color.BLACK;
-        Ray ray = constructRay(this.nX, this.nY, row, column, false);
+        Ray ray = constructRay(this.nX, this.nY, row, column);
         for (int s = 0; s < aaSamples; s++) {
             // Use jittered ray construction for AA
             if (aaSamples > 1)
-                ray = constructRay(this.nX, this.nY, row, column, true);
+                ray = constructRay(this.nX, this.nY, row, column, Util.random(-0.5, 0.5), Util.random(-0.5, 0.5));
 
             if (apertureRadius > 0 && focalDistance > 0 && dofSamples > 1) {
                     List<Ray> rays = constructDofRays(ray);
