@@ -37,7 +37,7 @@ public class CameraIntersectionsIntegrationTests {
         int numOfIntersections = 0;
         for (int i = 0; i < camera.getWidth(); i++) {
             for (int j = 0; j < camera.getHeight(); j++) {
-                var intersections = geometry.findIntersections(camera.constructRay(3, 3, j, i));
+                var intersections = geometry.findIntersections(camera.constructRay(3, 3, j, i, false));
                 numOfIntersections += intersections == null ? 0 : intersections.size();
             }
         }

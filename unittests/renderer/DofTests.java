@@ -7,6 +7,7 @@ import scene.Scene;
 import geometries.*;
 import primitives.Color;
 import primitives.Material;
+
 /**
  * Test class for Depth of Field rendering using Camera Builder.
  */
@@ -36,12 +37,12 @@ public class DofTests {
                 .setDirection(new Vector(0, 0, 1), new Vector(0, -1, 0))
                 .setVpSize(150, 150)
                 .setVpDistance(100)
-                .setResolution(4000, 4000)
+                .setResolution(600, 600)
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setApertureRadius(5)
                 .setFocalDistance(new Point(15, 0, 150).distance(new Point(0, 0, 0)))
-                .setDofSamples(5)
-                .setAaSamples(5)
+                .setDofSamples(50)
+                .setAaSamples(50)
                 .setMultithreading(8)
                 .setDebugPrint(0.1)
                 .build();
@@ -56,7 +57,7 @@ public class DofTests {
                 .setAmbientLight(new AmbientLight(new Color(30, 30, 30)));
 
         // Mirror parameters
-        double mirrorWidth = 200, mirrorHeight = 300, mirrorThickness = 5;
+        double mirrorWidth = 200, mirrorHeight = 300;
         double mirrorDistance = 200;
         double mirrorZ = 0;
         double mirrorY1 = -mirrorDistance / 2;
@@ -151,37 +152,36 @@ public class DofTests {
 
         double x1 = -bodyWidth / 2, x2 = bodyWidth / 2;
         double y1 = personY - bodyDepth / 2, y2 = personY + bodyDepth / 2;
-        double z1 = bodyZ, z2 = bodyZ + bodyHeight;
+        double z2 = bodyZ + bodyHeight;
 
         // Shirt color and material (same as arms)
-        Color shirtColor = green;
 
         // Shirt as a closed box (all 6 faces)
         scene.geometries.add(
                 // Front (chest)
                 new Polygon(
-                        new Point(x1, y1, z1), new Point(x2, y1, z1), new Point(x2, y2, z1), new Point(x1, y2, z1)
-                ).setEmission(shirtColor).setMaterial(shirtMat),
+                        new Point(x1, y1, bodyZ), new Point(x2, y1, bodyZ), new Point(x2, y2, bodyZ), new Point(x1, y2, bodyZ)
+                ).setEmission(green).setMaterial(shirtMat),
                 // Back
                 new Polygon(
                         new Point(x1, y1, z2), new Point(x2, y1, z2), new Point(x2, y2, z2), new Point(x1, y2, z2)
-                ).setEmission(shirtColor).setMaterial(shirtMat),
+                ).setEmission(green).setMaterial(shirtMat),
                 // Left
                 new Polygon(
-                        new Point(x1, y1, z1), new Point(x1, y2, z1), new Point(x1, y2, z2), new Point(x1, y1, z2)
-                ).setEmission(shirtColor).setMaterial(shirtMat),
+                        new Point(x1, y1, bodyZ), new Point(x1, y2, bodyZ), new Point(x1, y2, z2), new Point(x1, y1, z2)
+                ).setEmission(green).setMaterial(shirtMat),
                 // Right
                 new Polygon(
-                        new Point(x2, y1, z1), new Point(x2, y2, z1), new Point(x2, y2, z2), new Point(x2, y1, z2)
-                ).setEmission(shirtColor).setMaterial(shirtMat),
+                        new Point(x2, y1, bodyZ), new Point(x2, y2, bodyZ), new Point(x2, y2, z2), new Point(x2, y1, z2)
+                ).setEmission(green).setMaterial(shirtMat),
                 // Top (shoulders)
                 new Polygon(
-                        new Point(x1, y2, z1), new Point(x2, y2, z1), new Point(x2, y2, z2), new Point(x1, y2, z2)
-                ).setEmission(shirtColor).setMaterial(shirtMat),
+                        new Point(x1, y2, bodyZ), new Point(x2, y2, bodyZ), new Point(x2, y2, z2), new Point(x1, y2, z2)
+                ).setEmission(green).setMaterial(shirtMat),
                 // Bottom
                 new Polygon(
-                        new Point(x1, y1, z1), new Point(x2, y1, z1), new Point(x2, y1, z2), new Point(x1, y1, z2)
-                ).setEmission(shirtColor).setMaterial(shirtMat)
+                        new Point(x1, y1, bodyZ), new Point(x2, y1, bodyZ), new Point(x2, y1, z2), new Point(x1, y1, z2)
+                ).setEmission(green).setMaterial(shirtMat)
         );
 
         // Arms (cylinders, left and right)
@@ -242,7 +242,6 @@ public class DofTests {
         );
 
         // floor
-        double floorZ = -50;
         scene.geometries.add(
                 new Plane(new Point(0,0,-50), new Vector(0, 0, 1)
                 ).setEmission(new Color(200, 200, 200)).setMaterial(new Material().setKD(0.5).setKS(0.1).setNShininess(20).setKR(0.5)
@@ -269,5 +268,93 @@ public class DofTests {
 
         camera.renderImage()
                 .writeToImage("DOFinfiniteMirrorsWithPerson");
+    }
+
+    @Test
+    void testDOFScene() {
+        Scene scene = new Scene("DOF Test Scene")
+                .setAmbientLight(new AmbientLight(new Color(15, 15, 18)));  // Reduced ambient light
+
+        // Materials
+        Material metallic = new Material()
+                .setKD(0.4).setKS(0.7).setNShininess(100).setKR(0.3);
+        Material glass = new Material()
+                .setKD(0.1).setKS(0.5).setNShininess(300).setKT(0.8);
+        Material matte = new Material()
+                .setKD(0.8).setKS(0.2).setNShininess(30);
+
+        // Main focal point object - metallic sphere in the center
+        scene.geometries.add(
+                new Sphere(new Point(0, 0, -100), 15)
+                        .setEmission(new Color(60, 60, 90))  // Reduced emission
+                        .setMaterial(metallic)
+        );
+
+        // Glass spheres arranged in front and behind the main sphere
+        for (int i = -2; i <= 2; i++) {
+            scene.geometries.add(
+                    new Sphere(new Point(-20 + i*10, -5, -70), 5)
+                            .setEmission(new Color(100, 100, 110))  // Reduced emission
+                            .setMaterial(glass),
+                    new Sphere(new Point(20 - i*10, 5, -130), 5)
+                            .setEmission(new Color(110, 100, 100))  // Reduced emission
+                            .setMaterial(glass)
+            );
+        }
+
+        // Background cylinders at different depths
+        for (int i = -3; i <= 3; i++) {
+            scene.geometries.add(
+                    new Cylinder(
+                            3, new Ray(new Point(i*25, -20, -160), new Vector(0, 1, 0)), 40)
+                            .setEmission(new Color(
+                                    130 + i*20,  // Reduced color variation
+                                    120 + i*15,  // Reduced color variation
+                                    100))
+                            .setMaterial(matte)
+            );
+        }
+
+        // Reflective floor
+        scene.geometries.add(
+                new Plane(new Point(0, -20, 0), new Vector(0, 1, 0))
+                        .setEmission(new Color(30, 30, 30))  // Darker floor
+                        .setMaterial(new Material().setKR(0.3).setKS(0.8).setNShininess(100))
+        );
+
+        // Background plane
+        scene.geometries.add(
+                new Plane(new Point(0, 0, -200), new Vector(0, 0, 1))
+                        .setEmission(new Color(20, 20, 25))  // Darker background
+                        .setMaterial(new Material().setKD(0.8))
+        );
+
+        // Lighting setup - Significantly reduced light intensities
+
+        scene.lights.add(new SpotLight(new Color(400, 300, 300), new Point(-50, 50, -50),  // Reduced from 1000
+                    new Vector(1, -1, -1)).setKL(0.0004).setKQ(0.0004)); // Increased attenuation
+        scene.lights.add(new PointLight(new Color(300, 400, 300), new Point(50, 50, -50))  // Reduced from 1000
+                    .setKL(0.0004).setKQ(0.0004)); // Increased attenuation
+        scene.lights.add(new DirectionalLight(new Color(150, 150, 200), new Vector(0, -1, -1)));  // Reduced from 800
+
+
+        // Camera setup
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, 20, 50))
+                .setDirection(new Vector(0, -0.2, -1))
+                .setVpDistance(150)
+                .setVpSize(200, 200)
+                .setResolution(1000, 1000)
+                .setAaSamples(81)
+                .setMultithreading(10)
+                .setDebugPrint(1)
+                // For DOF version, add:
+                .setDofSamples(50)
+                .setFocalDistance(new Point(0, 0, -100).distance(new Point(0, 20, 50))) // Focal distance to the main sphere
+                .setApertureRadius(2.0)
+                .build();
+
+        camera.renderImage().writeToImage("DOFSceneComparison");
     }
 }
