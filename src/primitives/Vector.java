@@ -35,7 +35,7 @@ public class Vector extends Point {
      */
     public Vector(Double3 xyz) {
         super(xyz);
-        if (xyz.equals(Point.ZERO.xyz)) {
+        if (xyz.d1()==0 && xyz.d2()==0 && xyz.d3()==0) {
             throw new IllegalArgumentException("Vector cannot be zero");
         }
     }
