@@ -153,13 +153,15 @@ public class Color {
       return new Color(rgb.reduce(k));
    }
 
+
+
    @Override
    public boolean equals(Object obj) {
       if (this == obj) return true;
       return (obj instanceof Color other)
-              && (Math.abs(rgb.d1() - other.rgb.d1()) < 10)
-              && (Math.abs(rgb.d2() - other.rgb.d2()) < 10)
-              && (Math.abs(rgb.d3() - other.rgb.d3()) < 10);
+              && (Math.abs(rgb.d1() - other.rgb.d1()) < 1)
+              && (Math.abs(rgb.d2() - other.rgb.d2()) < 1)
+              && (Math.abs(rgb.d3() - other.rgb.d3()) < 1);
    }
 
    @Override

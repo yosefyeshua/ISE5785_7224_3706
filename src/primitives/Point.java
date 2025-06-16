@@ -89,6 +89,22 @@ public class Point {
         return o instanceof Point other && this.xyz.equals(other.xyz);
     }
 
+    /**
+     * Generates a random point on the circle.
+     * This method uses polar coordinates to generate a random point within the circle.
+     * @param vx the right vector of the circle representing the x-axis in the camera's local coordinate system
+     * @param vy the up vector of the circle
+     * @param radius the radius of the circle
+     * @return A random point within the circle.
+     */
+    public Point getRandomRadialPoint(Vector vx, Vector vy, double radius) {
+        double r = radius * Math.sqrt(Math.random());
+        double theta = 2 * Math.PI * Math.random();
+        double x = r * Math.cos(theta);
+        double y = r * Math.sin(theta);
+        return this.add(vx.scale(x)).add(vy.scale(y));
+    }
+
     public double getX() {
         return xyz.d1();
     }

@@ -41,14 +41,14 @@ public class DofTests {
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setApertureRadius(5)
                 .setFocalDistance(new Point(15, 0, 150).distance(new Point(0, 0, 0)))
-                .setDofSamples(100)
-                .setAaSamples(300)
+                .setDofSamples(50)
+                .setAaSamples(36)
                 .setMultithreading(8)
                 .setDebugPrint(0.1)
                 .build();
 
         camera.renderImage()
-                .writeToImage("dof_test_with_builder_300AA_100DOF");
+                .writeToImage("dof_testAA_36");
     }
 
     @Test
@@ -258,16 +258,18 @@ public class DofTests {
                 .setDirection(lookAt, up)
                 .setVpSize(100, 150)
                 .setVpDistance(30)
-                .setResolution(2000, 2000)
+                .setResolution(1000, 1000)
                 .setFocalDistance(cameraLoc.distance(lookAt))
-                .setApertureRadius(0.4)
+                .setApertureRadius(2.0)
                 .setDofSamples(5)
+//                .setAaSamples(64)
+                .setAdaptiveSuperSampling(true)
                 .setMultithreading(8)
-                .setDebugPrint(5)
+                .setDebugPrint(1.2)
                 .build();
 
         camera.renderImage()
-                .writeToImage("DOFinfiniteMirrorsWithPerson");
+                .writeToImage("DOFinfiniteMirrorsWithPersonASS_1");
     }
 
     @Test
@@ -347,14 +349,14 @@ public class DofTests {
                 .setVpSize(200, 200)
                 .setResolution(1000, 1000)
                 .setAaSamples(81)
-                .setMultithreading(10)
+                .setAdaptiveSuperSampling(true)
+                .setMultithreading(8)
                 .setDebugPrint(1)
-                // For DOF version, add:
-                .setDofSamples(100)
+                .setDofSamples(50)
                 .setFocalDistance(new Point(0, 0, -100).distance(new Point(0, 20, 50))) // Focal distance to the main sphere
                 .setApertureRadius(2.0)
                 .build();
 
-        camera.renderImage().writeToImage("DOFSceneComparison_100DOF_81AA");
+        camera.renderImage().writeToImage("DOFSceneComparisonASS");
     }
 }
