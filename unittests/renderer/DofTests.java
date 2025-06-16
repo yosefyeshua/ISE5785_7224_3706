@@ -41,14 +41,14 @@ public class DofTests {
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setApertureRadius(5)
                 .setFocalDistance(new Point(15, 0, 150).distance(new Point(0, 0, 0)))
-                .setDofSamples(50)
-                .setAaSamples(50)
+                .setDofSamples(100)
+                .setAaSamples(300)
                 .setMultithreading(8)
                 .setDebugPrint(0.1)
                 .build();
 
         camera.renderImage()
-                .writeToImage("dof_test_with_builder");
+                .writeToImage("dof_test_with_builder_300AA_100DOF");
     }
 
     @Test
@@ -350,11 +350,11 @@ public class DofTests {
                 .setMultithreading(10)
                 .setDebugPrint(1)
                 // For DOF version, add:
-                .setDofSamples(50)
+                .setDofSamples(100)
                 .setFocalDistance(new Point(0, 0, -100).distance(new Point(0, 20, 50))) // Focal distance to the main sphere
                 .setApertureRadius(2.0)
                 .build();
 
-        camera.renderImage().writeToImage("DOFSceneComparison");
+        camera.renderImage().writeToImage("DOFSceneComparison_100DOF_81AA");
     }
 }

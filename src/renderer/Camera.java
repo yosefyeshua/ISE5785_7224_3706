@@ -244,12 +244,12 @@ public class Camera implements Cloneable {
      * @return List of rays from random aperture positions toward the focal point.
      */
     private List<Ray> constructDofRays(Ray ray) {
-        List<Ray> rays = new ArrayList<>();
-            double t = focalDistance / vTo.dotProduct(ray.getDirection());
+        List<Ray> rays = new LinkedList<>();
+        double t = focalDistance / vTo.dotProduct(ray.getDirection());
         Point focalPoint = ray.getPoint(t);
 
         for (int i = 0; i < dofSamples; i++) {
-                Point aperturePoint = getRandomAperturePoint();
+            Point aperturePoint = getRandomAperturePoint();
             Vector dir = focalPoint.subtract(aperturePoint).normalize();
             rays.add(new Ray(aperturePoint, dir));
         }
@@ -299,8 +299,6 @@ public class Camera implements Cloneable {
         double rX = width / nX;
         double xJ = (j + xOff - (nX - 1) / 2.0) * rX;
         double yI = -(i + yOff - (nY - 1) / 2.0) * rY;
-        xJ = xJ + Util.random(-0.5, 0.5) * rX;
-        yI = yI + Util.random(-0.5, 0.5) * rY;
         if (!Util.isZero(xJ))
             pij = pij.add(vRight.scale(xJ));
         if (!Util.isZero(yI))

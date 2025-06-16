@@ -1532,11 +1532,14 @@ class LightsTests {
                 .setVpSize(170, 170)
                 .setResolution(900, 900)
                 .setAaSamples(5)
+                .setDofSamples(5)
+                .setApertureRadius(1)
+                .setFocalDistance(new Point(0, 0, -100).distance(new Point(0, 25, 50)))
                 .setMultithreading(10)
-                .setDebugPrint(5)
+                .setDebugPrint(0.1)
                 .build()
                 .renderImage()
-                .writeToImage("FinalPrismMultiThreading");
+                .writeToImage("FinalPrismMultiThreadingDOF");
     }
 
     /**
