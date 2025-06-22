@@ -41,14 +41,15 @@ public class DofTests {
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setApertureRadius(5)
                 .setFocalDistance(new Point(15, 0, 150).distance(new Point(0, 0, 0)))
-                .setDofSamples(50)
+                //.setDofSamples(50)
                 .setAaSamples(36)
+                .setASSdepth(5)
                 .setMultithreading(8)
                 .setDebugPrint(0.1)
                 .build();
 
         camera.renderImage()
-                .writeToImage("dof_testAA_36");
+                .writeToImage("_testAA_36");
     }
 
     @Test
@@ -263,7 +264,7 @@ public class DofTests {
                 .setApertureRadius(2.0)
                 .setDofSamples(5)
 //                .setAaSamples(64)
-                .setAdaptiveSuperSampling(true)
+                .setASSdepth(3)
                 .setMultithreading(8)
                 .setDebugPrint(1.2)
                 .build();
@@ -349,7 +350,7 @@ public class DofTests {
                 .setVpSize(200, 200)
                 .setResolution(1000, 1000)
                 .setAaSamples(81)
-                .setAdaptiveSuperSampling(true)
+                .setASSdepth(4)
                 .setMultithreading(8)
                 .setDebugPrint(1)
                 .setDofSamples(50)
@@ -359,4 +360,115 @@ public class DofTests {
 
         camera.renderImage().writeToImage("DOFSceneComparisonASS");
     }
+
+    @Test
+    void testFinalAdvancedScene() {
+        Scene scene = new Scene("Final Advanced Scene")
+                .setAmbientLight(new AmbientLight(new Color(15, 15, 15)));
+
+        Material metallic = new Material().setKD(0.4).setKS(0.6).setNShininess(100).setKR(0.3);
+        Material glass = new Material().setKD(0.1).setKS(0.5).setNShininess(300).setKT(0.8);
+        Material matte = new Material().setKD(0.9).setKS(0.1).setNShininess(20);
+        Material mirror = new Material().setKR(1.0).setKS(0.8).setNShininess(300);
+
+        scene.geometries.add(
+                new Sphere(new Point(0, 0, -100), 15)
+                        .setEmission(new Color(60, 60, 90))
+                        .setMaterial(metallic)
+        );
+
+        scene.geometries.add(
+                new Cylinder(5,
+                        new Ray(new Point(50, -20, -80), new Vector(0, 1, 0)), 80)
+                        .setEmission(new Color(100, 100, 120))
+                        .setMaterial(glass)
+        );
+
+        scene.lights.add(
+                new PointLight(new Color(0, 700, 700), new Point(50, -7, -80))
+                        .setKL(0.0005).setKQ(0.0005)
+        );
+
+        scene.lights.add(
+                new PointLight(new Color(700, 0, 700), new Point(50, 20, -80))
+                        .setKL(0.0005).setKQ(0.0005)
+        );
+
+        scene.lights.add(
+                new PointLight(new Color(700, 700, 0), new Point(50, 40, -80))
+                        .setKL(0.0005).setKQ(0.0005)
+        );
+
+
+
+        scene.geometries.add(
+                new Sphere(new Point(-50, 10, -90), 10)
+                        .setEmission(new Color(50, 70, 100))
+                        .setMaterial(glass)
+        );
+        scene.lights.add(
+                new SpotLight(new Color(500, 0, 0), new Point(-50, 10, -90), new Vector(-1, 0, 0))
+                        .setKL(0.0003).setKQ(0.0003)
+        );
+
+        scene.geometries.add(
+                new Triangle(
+                        new Point(-20, -20, -70),
+                        new Point(-5, -5, -70),
+                        new Point(-30, -5, -70))
+                        .setEmission(new Color(90, 40, 40))
+                        .setMaterial(matte)
+        );
+
+        scene.geometries.add(
+                new Polygon(
+                        new Point(20, -20, -150),
+                        new Point(25, -18, -150),
+                        new Point(27, -13, -150),
+                        new Point(22, -10, -150),
+                        new Point(17, -15, -150)
+                ).setEmission(new Color(20, 70, 80))
+                        .setMaterial(metallic)
+        );
+
+        scene.geometries.add(
+                new Sphere(new Point(0, -10, -130), 7)
+                        .setEmission(new Color(40, 40, 40))
+                        .setMaterial(mirror)
+        );
+
+        scene.geometries.add(
+                new Plane(new Point(0, -20, 0), new Vector(0, 1, 0))
+                        .setEmission(new Color(20, 20, 20))
+                        .setMaterial(new Material().setKR(0.4).setKS(0.5).setNShininess(100))
+        );
+
+        scene.geometries.add(
+                new Plane(new Point(0, 0, -200), new Vector(0, 0, 1))
+                        .setEmission(new Color(10, 10, 15))
+                        .setMaterial(new Material().setKD(0.7))
+        );
+
+
+        scene.lights.add(new DirectionalLight(new Color(300, 300, 400), new Vector(0, -1, -1)));
+
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, 30, 50))
+                .setDirection(new Vector(0, -0.25, -1))
+                .setVpDistance(150)
+                .setVpSize(200, 200)
+                .setResolution(1000, 1000)
+                .setAaSamples(81)
+                .setMultithreading(8)
+                .setDebugPrint(1)
+                .setDofSamples(10)
+                .setFocalDistance(new Point(0, 0, -100).distance(new Point(0, 30, 50)))
+                .setApertureRadius(5)
+                .setASSdepth(2)
+                .build();
+
+        camera.renderImage().writeToImage("FinalAdvancedScene");
+    }
+
 }
