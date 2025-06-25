@@ -104,7 +104,7 @@ public class Camera implements Cloneable {
     /**
     * Flag for adaptive super sampling
     */
-    private boolean adaptiveSuperSampling = false;
+    private int aSSdepth = 0;
 
     //MT
     /** Amount of threads to use fore rendering image by the camera */
@@ -331,27 +331,20 @@ public class Camera implements Cloneable {
      * @return a {@link Color} representing the averaged color of the sampled rays
      */
     private Color adaptiveSuperSampling(int i, int j, int depth, double minX, double maxX, double minY, double maxY) {
-        Color c0,c1,c2,c3,c4;
-        Ray r0,r1,r2,r3,r4;
         double midX = (minX + maxX) / 2;
         double midY = (minY + maxY) / 2;
-        r0 = constructRay(nX, nY, i, j, midX, midY);
-        c0 = rayTracer.traceRay(r0);
+        Ray r0 = constructRay(nX, nY, i, j, midX, midY);
+        Color c0 = rayTracer.traceRay(r0);
         if(dofSamples > 0 && apertureRadius > 0 && focalDistance > 0)
             c0 = calcDOFcolor(r0);
-        if (depth >= 2) {
+        if (depth >= 4) {
             return c0;
         }
 
-        r1 = constructRay(nX, nY, i, j, minX, minY);
-        r2 = constructRay(nX, nY, i, j, maxX, minY);
-        r3 = constructRay(nX, nY, i, j, minX, maxY);
-        r4 = constructRay(nX, nY, i, j, maxX, maxY);
-
-        c1 = rayTracer.traceRay(r1);
-        c2 = rayTracer.traceRay(r2);
-        c3 = rayTracer.traceRay(r3);
-        c4 = rayTracer.traceRay(r4);
+        Color c1 = rayTracer.traceRay(constructRay(nX, nY, i, j, minX, minY));
+        Color c2 = rayTracer.traceRay(constructRay(nX, nY, i, j, maxX, minY));
+        Color c3 = rayTracer.traceRay(constructRay(nX, nY, i, j, minX, maxY));
+        Color c4 = rayTracer.traceRay(constructRay(nX, nY, i, j, maxX, maxY));
 
         if (c1.equals(c0) && c2.equals(c0) && c3.equals(c0) && c4.equals(c0))
             return c0;
@@ -378,7 +371,7 @@ public class Camera implements Cloneable {
      */
     private void castRay(int column, int row) {
         Color color = Color.BLACK;
-        if( adaptiveSuperSampling ) {
+        if( aSSdepth > 0 ) {
             color = adaptiveSuperSampling(row, column, 0, -0.5, 0.5, -0.5, 0.5);
         }
         else {
@@ -610,11 +603,13 @@ public class Camera implements Cloneable {
         /**
          * Sets the adaptive super sampling flag.
          *
-         * @param adaptiveSuperSampling true to enable adaptive super sampling, false to disable
+         * @param aSSdepth the depth of adaptive super sampling
          * @return this builder instance for chaining
          */
-        public Builder setAdaptiveSuperSampling(boolean adaptiveSuperSampling) {
-            camera.adaptiveSuperSampling = adaptiveSuperSampling;
+        public Builder setASSdepth(int aSSdepth) {
+            if (aSSdepth < 0)
+                throw new IllegalArgumentException("Adaptive super sampling depth must be non-negative");
+            camera.aSSdepth = aSSdepth;
             return this;
         }
 
