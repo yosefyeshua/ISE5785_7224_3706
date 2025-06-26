@@ -105,6 +105,20 @@ public class Point {
         return this.add(vx.scale(x)).add(vy.scale(y));
     }
 
+    /**
+     * Gets the x and y coordinate of this point.
+     *
+     * @return the new coordinate
+     */
+    public Point getXYPoint(Vector vx, Vector vy, double x, double y) {
+        Point p = new Point(this.xyz);
+        if (x != 0)
+            p = p.add(vx.scale(x));
+        if (y != 0)
+            p = p.add(vy.scale(y));
+        return p;
+    }
+
     public double getX() {
         return xyz.d1();
     }

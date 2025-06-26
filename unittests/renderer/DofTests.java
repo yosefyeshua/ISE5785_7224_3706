@@ -37,19 +37,20 @@ public class DofTests {
                 .setDirection(new Vector(0, 0, 1), new Vector(0, -1, 0))
                 .setVpSize(150, 150)
                 .setVpDistance(100)
-                .setResolution(600, 600)
+                .setResolution(2000, 2000)
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setApertureRadius(5)
                 .setFocalDistance(new Point(15, 0, 150).distance(new Point(0, 0, 0)))
-                //.setDofSamples(50)
-                .setAaSamples(36)
+                .setDofSamples(50)
+                .setASSdepthDOF(5)
+                //.setAaSamples(36)
                 .setASSdepth(5)
                 .setMultithreading(8)
                 .setDebugPrint(0.1)
                 .build();
 
         camera.renderImage()
-                .writeToImage("_testAA_36");
+                .writeToImage("_testASS4_CORNERS_DOF");
     }
 
     @Test
@@ -263,8 +264,8 @@ public class DofTests {
                 .setFocalDistance(cameraLoc.distance(lookAt))
                 .setApertureRadius(2.0)
                 .setDofSamples(5)
-//                .setAaSamples(64)
-                .setASSdepth(3)
+                .setASSdepthDOF(4)
+                //.setASSdepth(3)
                 .setMultithreading(8)
                 .setDebugPrint(1.2)
                 .build();
@@ -459,16 +460,17 @@ public class DofTests {
                 .setVpDistance(150)
                 .setVpSize(200, 200)
                 .setResolution(1000, 1000)
-                .setAaSamples(81)
-                .setMultithreading(8)
+                //.setAaSamples(81)
+                //.setMultithreading(8)
                 .setDebugPrint(1)
                 .setDofSamples(10)
                 .setFocalDistance(new Point(0, 0, -100).distance(new Point(0, 30, 50)))
                 .setApertureRadius(5)
-                .setASSdepth(2)
+                .setASSdepthDOF(4)
+                //.setASSdepth(2)
                 .build();
 
-        camera.renderImage().writeToImage("FinalAdvancedScene");
+        camera.renderImage().writeToImage("FinalAdvancedSceneDOFASS");
     }
 
 }
