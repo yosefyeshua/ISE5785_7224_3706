@@ -307,19 +307,14 @@ public class Camera implements Cloneable {
         Color c2 = rayTracer.traceRay(r2);
         Color c3 = rayTracer.traceRay(r3);
         Color c4 = rayTracer.traceRay(r4);
-        if (c1.equals(c0) && c2.equals(c0) && c3.equals(c0) && c4.equals(c0))
-            return c0;
-        else {
-            if(!c1.equals(c0))
-                c1 = adaptiveSuperSamplingDOF(depth + 1,minX ,midX ,minY ,midY, focalPoint );
-            if(!c2.equals(c0))
-                c2 = adaptiveSuperSamplingDOF(depth + 1 ,midX ,maxX ,minY ,midY, focalPoint );
-            if(!c3.equals(c0))
-                c3 = adaptiveSuperSamplingDOF(depth + 1 ,minX ,midX ,midY ,maxY, focalPoint );
-            if(!c4.equals(c0))
-                c4 = adaptiveSuperSamplingDOF(depth + 1 ,midX ,maxX ,midY ,maxY, focalPoint );
-        }
-
+        if(!c1.equals(c0))
+            c1 = adaptiveSuperSamplingDOF(depth + 1,minX ,midX ,minY ,midY, focalPoint );
+        if(!c2.equals(c0))
+            c2 = adaptiveSuperSamplingDOF(depth + 1 ,midX ,maxX ,minY ,midY, focalPoint );
+        if(!c3.equals(c0))
+            c3 = adaptiveSuperSamplingDOF(depth + 1 ,minX ,midX ,midY ,maxY, focalPoint );
+        if(!c4.equals(c0))
+            c4 = adaptiveSuperSamplingDOF(depth + 1 ,midX ,maxX ,midY ,maxY, focalPoint );
         return c0.add(c1,c2,c3,c4).reduce(5);
     }
 
