@@ -97,6 +97,18 @@ public class Camera implements Cloneable {
     private int dofSamples = 0;
 
     /**
+     * DOF ASS depth
+     */
+    private int aSSdepthDOF = 0;
+
+
+    /**
+     * Flag indicating whether depth of field is enabled.
+     * It is true if dofSamples > 0 or aSSdepthDOF > 0, and apertureRadius and focalDistance are set.
+     */
+    boolean isDOF = false;
+
+    /**
      * The number of anti-aliasing samples per pixel.
      */
     private int aaSamples = 1;
@@ -105,11 +117,6 @@ public class Camera implements Cloneable {
     * aa ass depth
     */
     private int aSSdepth = 0;
-
-    /**
-     * DOF ASS depth
-     */
-    private int aSSdepthDOF = 0;
 
 
     //MT
@@ -164,10 +171,6 @@ public class Camera implements Cloneable {
         return new Builder();
     }
 
-
-    private boolean isDOF() {
-        return (dofSamples > 0 || aSSdepthDOF > 0 )&& apertureRadius > 0 && focalDistance > 0;
-    }
 
     /**
      * Render image using multi-threading by parallel streaming
@@ -267,56 +270,85 @@ public class Camera implements Cloneable {
         return rays;
     }
 
-
     /**
-     * Recursively applies adaptive super sampling with depth of field (DOF) to a pixel area,
-     * shooting rays from multiple sub-pixel positions through a focal point to simulate aperture blur.
+     * Performs adaptive super sampling for a specific pixel area with DOF.
+     * Sends rays through the four corners of the given pixel region, with depth of field (DOF) effect.
+     * If all four corner colors are equal, returns that color.
+     * Otherwise, recursively subdivides the region and averages the resulting colors.
+     * Limits recursion depth to avoid infinite subdivision.
      *
-     * <p>This method traces rays from the corners and center of a given sub-region within the pixel,
-     * compares the resulting colors, and refines the sampling adaptively if needed,
-     * to improve rendering quality and reduce aliasing artifacts.</p>
-     *
-     * @param depth      current recursion depth for adaptive sampling
-     * @param minX       minimum X offset (relative to the pixel) in the sampling area
-     * @param maxX       maximum X offset (relative to the pixel) in the sampling area
-     * @param minY       minimum Y offset (relative to the pixel) in the sampling area
-     * @param maxY       maximum Y offset (relative to the pixel) in the sampling area
-     * @param focalPoint the point on the focal plane through which rays are aimed (for DOF effect)
-     * @return a {@link Color} representing the averaged color of the sampled rays in this region
+     * @param depth  current recursion depth
+     * @param minX   minimum X coordinate within the pixel
+     * @param maxX   maximum X coordinate within the pixel
+     * @param minY   minimum Y coordinate within the pixel
+     * @param maxY   maximum Y coordinate within the pixel
+     * @param focalPoint the focal point for DOF calculations
+     * @return the averaged color of the region
      */
-    private Color adaptiveSuperSamplingDOF(int depth, double minX, double maxX, double minY, double maxY, Point focalPoint) {
-        double midX = (minX + maxX) / 2;
-        double midY = (minY + maxY) / 2;
-        Point p = p0.getXYPoint(vRight, vUp, midX, midY);
-        Ray r0 = new Ray(p, focalPoint.subtract(p));
-        Color c0 = rayTracer.traceRay(r0);
+    private Color adaptiveSuperSamplingDOF(int depth,
+                                           double minX, double maxX, double minY, double maxY, Point focalPoint) {
+        // Points for the four corners
+        Point p1 = p0.getXYPoint(vRight, vUp, minX, minY); // left bottom
+        Point p2 = p0.getXYPoint(vRight, vUp, maxX, minY); // right bottom
+        Point p3 = p0.getXYPoint(vRight, vUp, minX, maxY); // left top
+        Point p4 = p0.getXYPoint(vRight, vUp, maxX, maxY); // right top
 
+        // Get color from left bottom corner (initial color for comparison)
+        Color cLB = rayTracer.traceRay(new Ray(p1, focalPoint.subtract(p1)));
+
+        // Base case: maximum recursion depth reached – return left bottom corner color
         if (depth >= aSSdepthDOF) {
-            return c0;
+            return cLB;
         }
 
-        Point p1 = p0.getXYPoint(vRight, vUp, minX, minY);
-        Point p2 = p0.getXYPoint(vRight, vUp, maxX, minY);
-        Point p3 = p0.getXYPoint(vRight, vUp, minX, maxY);
-        Point p4 = p0.getXYPoint(vRight, vUp, maxX, maxY);
-        Ray r1 = new Ray(p1, focalPoint.subtract(p1));
-        Ray r2 = new Ray(p2, focalPoint.subtract(p2));
-        Ray r3 = new Ray(p3, focalPoint.subtract(p3));
-        Ray r4 = new Ray(p4, focalPoint.subtract(p4));
-        Color c1 = rayTracer.traceRay(r1);
-        Color c2 = rayTracer.traceRay(r2);
-        Color c3 = rayTracer.traceRay(r3);
-        Color c4 = rayTracer.traceRay(r4);
-        if(!c1.equals(c0))
-            c1 = adaptiveSuperSamplingDOF(depth + 1,minX ,midX ,minY ,midY, focalPoint );
-        if(!c2.equals(c0))
-            c2 = adaptiveSuperSamplingDOF(depth + 1 ,midX ,maxX ,minY ,midY, focalPoint );
-        if(!c3.equals(c0))
-            c3 = adaptiveSuperSamplingDOF(depth + 1 ,minX ,midX ,midY ,maxY, focalPoint );
-        if(!c4.equals(c0))
-            c4 = adaptiveSuperSamplingDOF(depth + 1 ,midX ,maxX ,midY ,maxY, focalPoint );
-        return c0.add(c1,c2,c3,c4).reduce(5);
+        // Check right bottom only if needed
+        Color cRB = rayTracer.traceRay(new Ray(p2, focalPoint.subtract(p2)));
+        if (!cRB.equals(cLB)) {
+            return recurseAllDOF(depth, minX, maxX, minY, maxY, focalPoint);
+        }
+
+        // Check left top only if still equal
+        Color cLT = rayTracer.traceRay(new Ray(p3, focalPoint.subtract(p3)));
+        if (!cLT.equals(cLB)) {
+            return recurseAllDOF( depth, minX, maxX, minY, maxY, focalPoint);
+        }
+
+        // Check right top only if still equal
+        Color cRT = rayTracer.traceRay(new Ray(p4, focalPoint.subtract(p4)));
+        if (!cRT.equals(cLB)) {
+            return recurseAllDOF( depth, minX, maxX, minY, maxY, focalPoint);
+        }
+
+        // All corners are equal, return the color of the left bottom corner
+        return cLB;
     }
+
+    /**
+     * Recursively subdivides the current pixel region into 4 quadrants and averages their colors with DOF.
+     *
+     * @param depth  current recursion depth
+     * @param minX   minimum X coordinate of the region
+     * @param maxX   maximum X coordinate of the region
+     * @param minY   minimum Y coordinate of the region
+     * @param maxY   maximum Y coordinate of the region
+     * @param focalPoint point on the focal plane
+     * @return averaged color from the 4 subregions with DOF
+     */
+    private Color recurseAllDOF( int depth,
+                                double minX, double maxX, double minY, double maxY, Point focalPoint) {
+        double midX = (minX + maxX) / 2;
+        double midY = (minY + maxY) / 2;
+
+        // Perform adaptive super sampling for each quadrant
+        Color r1 = adaptiveSuperSamplingDOF(depth + 1, minX, midX, minY, midY, focalPoint); // left bottom
+        Color r2 = adaptiveSuperSamplingDOF( depth + 1, midX, maxX, minY, midY, focalPoint); // right bottom
+        Color r3 = adaptiveSuperSamplingDOF( depth + 1, minX, midX, midY, maxY, focalPoint); // left top
+        Color r4 = adaptiveSuperSamplingDOF(depth + 1, midX, maxX, midY, maxY, focalPoint); // right top
+
+        // Average the colors from the 4 quadrants
+        return r1.add(r2, r3, r4).reduce(4);
+    }
+
 
 
     /**
@@ -398,7 +430,7 @@ public class Camera implements Cloneable {
         double midY = (minY + maxY) / 2;
         Ray r0 = constructRay(nX, nY, i, j, midX, midY);
         Color c0 = rayTracer.traceRay(r0);
-        if(isDOF())
+        if(isDOF)
             c0 = calcDOFcolor(r0);
         if (depth >= aSSdepth) {
             return c0;
@@ -444,7 +476,7 @@ public class Camera implements Cloneable {
                 if (aaSamples > 1)
                     ray = constructRay(this.nX, this.nY, row, column, Util.random(-0.5, 0.5), Util.random(-0.5, 0.5));
 
-                if (isDOF()) {
+                if (isDOF) {
                     color = color.add(calcDOFcolor(ray));
                 } else {
                     color = color.add(rayTracer.traceRay(ray));
@@ -737,6 +769,8 @@ public class Camera implements Cloneable {
                 camera.rayTracer = new SimpleRayTracer(null);
 
             camera.pIJ = camera.p0.add(camera.vTo.scale(camera.distance));
+
+            camera.isDOF =(camera.dofSamples > 0 || camera.aSSdepthDOF > 0 )&& camera.apertureRadius > 0 && camera.focalDistance > 0;
 
             try {
                 return (Camera) camera.clone();
