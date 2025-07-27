@@ -289,9 +289,9 @@ public class Camera implements Cloneable {
                                            double minX, double maxX, double minY, double maxY, Point focalPoint) {
 
         // Base case: maximum recursion depth reached – return the center ray's color
-        if (depth >= aSSdepthDOF) {
+        if (depth == aSSdepthDOF) {
             Point centerPoint = p0.getXYPoint(vRight, vUp, (minX + maxX) / 2, (minY + maxY) / 2);
-            return  rayTracer.traceRay(new Ray(p0, centerPoint.subtract(p0)));
+            return  rayTracer.traceRay(new Ray(centerPoint, focalPoint.subtract(centerPoint)));
         }
 
         // Points for the four corners
@@ -364,7 +364,7 @@ public class Camera implements Cloneable {
         double t = focalDistance / vTo.dotProduct(ray.getDirection());
         Point focalPoint = ray.getPoint(t);
         if(aSSdepthDOF > 0) {
-            return adaptiveSuperSamplingDOF(0, -apertureRadius, apertureRadius, -apertureRadius, apertureRadius,focalPoint);
+            return adaptiveSuperSamplingDOF(0, -apertureRadius, apertureRadius , -apertureRadius, apertureRadius, focalPoint);
         }
         List<Ray> rays = constructDofRays(focalPoint);
         Color dofColor = Color.BLACK;

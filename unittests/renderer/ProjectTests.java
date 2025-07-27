@@ -127,16 +127,12 @@ public class ProjectTests {
                 .setVpDistance(150)
                 .setVpSize(200, 200)
                 .setResolution(1000, 1000)
-                //.setAaSamples(10)
-                //.setASSdepth(5)
-                //.setMultithreading(8)
                 .setDebugPrint(0.1)
-                //.setDofSamples(81)
                 .setFocalDistance(new Point(0, 0, -50).distance(new Point(0, 20, 70))) // Focal distance to the main sphere
                 .setApertureRadius(2.0)
-                .setASSdepthDOF(2)
+                .setDofSamples(81)
                 .build();
 
-        camera.renderImage().writeToImage("FinalProject2Image_AAASS_TEMP");
+        camera.renderImage().writeToImage("FinalProject2Image_DOF81");
     }
 }
