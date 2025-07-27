@@ -287,6 +287,13 @@ public class Camera implements Cloneable {
      */
     private Color adaptiveSuperSamplingDOF(int depth,
                                            double minX, double maxX, double minY, double maxY, Point focalPoint) {
+
+        // Base case: maximum recursion depth reached – return the center ray's color
+        if (depth >= aSSdepthDOF) {
+            Point centerPoint = p0.getXYPoint(vRight, vUp, (minX + maxX) / 2, (minY + maxY) / 2);
+            return  rayTracer.traceRay(new Ray(p0, centerPoint.subtract(p0)));
+        }
+
         // Points for the four corners
         Point p1 = p0.getXYPoint(vRight, vUp, minX, minY); // left bottom
         Point p2 = p0.getXYPoint(vRight, vUp, maxX, minY); // right bottom
@@ -296,10 +303,6 @@ public class Camera implements Cloneable {
         // Get color from left bottom corner (initial color for comparison)
         Color cLB = rayTracer.traceRay(new Ray(p1, focalPoint.subtract(p1)));
 
-        // Base case: maximum recursion depth reached – return left bottom corner color
-        if (depth >= aSSdepthDOF) {
-            return cLB;
-        }
 
         // Check right bottom only if needed
         Color cRB = rayTracer.traceRay(new Ray(p2, focalPoint.subtract(p2)));

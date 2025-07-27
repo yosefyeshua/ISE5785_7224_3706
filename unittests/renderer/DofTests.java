@@ -43,13 +43,12 @@ public class DofTests {
                 .setFocalDistance(new Point(15, 0, 150).distance(new Point(0, 0, 0)))
                 .setDofSamples(50)
                 .setASSdepthDOF(4)
-                .setAaSamples(36)
                 .setMultithreading(8)
                 .setDebugPrint(0.1)
                 .build();
 
         camera.renderImage()
-                .writeToImage("_testASS4_CORNERS_DOF4_36AA");
+                .writeToImage("_testASS4_CORNERS_DOF4");
     }
 
     // This code replaces all cylinders with rectangular boxes, updates skin color, adds shoulders,
@@ -561,6 +560,134 @@ public class DofTests {
                 .build();
 
         camera.renderImage().writeToImage("FinalAdvancedSceneDOFASS");
+    }
+
+    @Test
+    void testFinalScene() {
+        Scene scene = new Scene("final Scene")
+                .setAmbientLight(new AmbientLight(new Color(15, 15, 15)));
+
+        Material glass = new Material().setKD(0.1).setKS(0.6).setNShininess(300).setKT(0.8);
+        Material mirror = new Material().setKR(1.0).setKS(0.7).setNShininess(200);
+        Material matte = new Material().setKD(0.8).setKS(0.2).setNShininess(30);
+        Material shiny = new Material().setKD(0.4).setKS(0.9).setNShininess(150);
+        Material reflectiveFloor = new Material().setKR(0.5).setKS(0.5).setNShininess(100);
+
+        // כדורים - שקופים ורגילים
+        scene.geometries.add(
+                new Sphere(new Point(-20, -10, -100), 10)
+                        .setEmission(new Color(30, 60, 100))
+                        .setMaterial(glass),
+                new Sphere(new Point(0, -10, -90), 10)
+                        .setEmission(new Color(100, 30, 30))
+                        .setMaterial(matte),
+                new Sphere(new Point(20, -10, -110), 10)
+                        .setEmission(new Color(40, 40, 80))
+                        .setMaterial(glass),
+                new Sphere(new Point(40, -10, -100), 10)
+                        .setEmission(new Color(100, 100, 100))
+                        .setMaterial(shiny)
+        );
+
+        // רצפה מבריקה
+        scene.geometries.add(
+                new Plane(new Point(0, -20, 0), new Vector(0, 1, 0))
+                        .setEmission(new Color(20, 20, 20))
+                        .setMaterial(reflectiveFloor)
+        );
+
+        // פירמידה ממשולשים בצד ימין
+        Point base1 = new Point(60, -20, -120);
+        Point base2 = new Point(70, -20, -120);
+        Point base3 = new Point(65, -20, -130);
+        Point apex = new Point(65, -5, -125);
+
+        scene.geometries.add(
+                new Triangle(base1, base2, apex)
+                        .setEmission(new Color(120, 80, 40))
+                        .setMaterial(matte),
+                new Triangle(base2, base3, apex)
+                        .setEmission(new Color(120, 80, 40))
+                        .setMaterial(matte),
+                new Triangle(base3, base1, apex)
+                        .setEmission(new Color(120, 80, 40))
+                        .setMaterial(matte)
+        );
+
+        // קיר אחורי כהה
+        scene.geometries.add(
+                new Plane(new Point(0, 0, -200), new Vector(0, 0, 1))
+                        .setEmission(new Color(10, 10, 15))
+                        .setMaterial(new Material().setKD(0.7))
+        );
+
+        // רצפה מבריקה
+        scene.geometries.add(
+                new Plane(new Point(0, -20, 0), new Vector(0, 1, 0))
+                        .setEmission(new Color(20, 20, 20))
+                        .setMaterial(reflectiveFloor)
+        );
+
+
+        // אור כיווני (כמו שמש)
+        scene.lights.add(
+                new DirectionalLight(new Color(250, 250, 350), new Vector(0, -1, -1))
+        );
+
+        // אור נקודתי בצבע אדום בהיר
+        scene.lights.add(
+                new PointLight(new Color(600, 100, 100), new Point(-20, 20, 0))
+                        .setKL(0.001).setKQ(0.0002)
+        );
+
+        // ספוטלייט עם אור כחלחל ממעל
+        scene.lights.add(
+                new SpotLight(new Color(400, 400, 700), new Point(20, 50, 0), new Vector(0, -1, -2))
+                        .setKL(0.0005).setKQ(0.0005)
+        );
+
+        // משולשים קרובים למצלמה - כדי להמחיש שקיפות וצל
+        Material opaque = new Material().setKD(0.8).setKS(0.3).setNShininess(50); // אטום
+        Material semiTransparent = new Material().setKD(0.2).setKS(0.5).setNShininess(200).setKT(0.7); // חצי שקוף
+        Material fullyTransparent = new Material().setKD(0.1).setKS(0.6).setNShininess(300).setKT(0.99); // שקוף כמעט לגמרי
+
+        scene.geometries.add(
+                // משולש אטום מצד שמאל
+                new Triangle(
+                        new Point(8, -5, 11),
+                        new Point(20, 10, 10),
+                        new Point(30, -5, 10))
+                        .setEmission(new Color(50, 20, 100))
+                        .setMaterial(opaque),
+
+                // משולש חצי שקוף באמצע
+                new Triangle(
+                        new Point(-20, -5, 5),
+                        new Point(-10, 10, 6),
+                        new Point(0, -5, 5))
+                        .setEmission(new Color(100, 200, 255))
+                        .setMaterial(semiTransparent),
+
+                // משולש שקוף לגמרי מימין
+                new Triangle(
+                        new Point(-15, -5, 1),
+                        new Point(0, 20, 0),
+                        new Point(15, -5, 0))
+                        .setEmission(new Color(255, 0, 0))
+                        .setMaterial(fullyTransparent)
+        );
+
+        // מצלמה
+        Camera camera = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE)
+                .setLocation(new Point(0, 30, 50))
+                .setDirection(new Vector(0, -0.25, -1))
+                .setVpDistance(150)
+                .setVpSize(200, 200)
+                .setResolution(1000, 1000)
+                .build();
+
+        camera.renderImage().writeToImage("FinalScene");
     }
 
 }
