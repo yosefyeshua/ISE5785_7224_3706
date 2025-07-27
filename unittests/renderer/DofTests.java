@@ -45,6 +45,9 @@ public class DofTests {
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setApertureRadius(5)
                 .setFocalDistance(new Point(15, 0, 150).distance(new Point(0, 0, 0)))
+                .setDofSamples(50)
+                .setASSdepthDOF(4)
+                .setAaSamples(36)
                 //.setDofSamples(81)
                 //.setAaSamples(36)
                 .setASSdepth(10)
@@ -53,229 +56,320 @@ public class DofTests {
                 .build();
 
         camera.renderImage()
-                .writeToImage("_testASS3");
+                .writeToImage("_testAA_36");
     }
 
+    // This code replaces all cylinders with rectangular boxes, updates skin color, adds shoulders,
+// and includes golden triangle decorations on mirrors for a system without Cylinder support.
+
     @Test
-    void DOFinfiniteMirrorsWithPerson() {
+    void DOFinfiniteMirrorsWithBoxPerson() {
         Scene scene = new Scene("Infinite Mirrors")
                 .setAmbientLight(new AmbientLight(new Color(30, 30, 30)));
 
-        // Mirror parameters
         double mirrorWidth = 200, mirrorHeight = 300;
         double mirrorDistance = 200;
         double mirrorZ = 0;
         double mirrorY1 = -mirrorDistance / 2;
         double mirrorY2 = mirrorDistance / 2 + 50;
 
-        // Brown rectangle (wooden frame)
         Color frameColor = new Color(70, 35, 35);
         Material frameMat = new Material().setKD(0.5).setKS(0.2).setNShininess(50);
 
-        // Gray mirror (fully reflective)
         Color mirrorColor = new Color(0, 0, 0);
-        Material mirrorMat = new Material().setKD(0.1).setKS(0.4).setNShininess(300).setKR(1); // reflective
+        Material mirrorMat = new Material().setKD(0.1).setKS(0.4).setNShininess(300).setKR(1);
 
-        // Mirror 1 (at y = mirrorY1)
+        Color gold = new Color(255, 215, 0);
+        Material goldMat = new Material().setKD(0.5).setKS(0.5).setNShininess(100).setKT(0.3);
+
+        // Mirror 1
         scene.geometries.add(
-                // Frame
-                new Polygon(
-                        new Point(-mirrorWidth / 2, mirrorY1, mirrorZ),
+                new Polygon(new Point(-mirrorWidth / 2, mirrorY1, mirrorZ),
                         new Point(mirrorWidth / 2, mirrorY1, mirrorZ),
                         new Point(mirrorWidth / 2, mirrorY1, mirrorZ + mirrorHeight),
-                        new Point(-mirrorWidth / 2, mirrorY1, mirrorZ + mirrorHeight)
-                ).setEmission(frameColor).setMaterial(frameMat),
-                // Mirror surface
-                new Polygon(
-                        new Point(-mirrorWidth / 2 + 5, mirrorY1 + 0.1, mirrorZ + 5),
+                        new Point(-mirrorWidth / 2, mirrorY1, mirrorZ + mirrorHeight))
+                        .setEmission(frameColor).setMaterial(frameMat),
+                new Polygon(new Point(-mirrorWidth / 2 + 5, mirrorY1 + 0.1, mirrorZ + 5),
                         new Point(mirrorWidth / 2 - 5, mirrorY1 + 0.1, mirrorZ + 5),
                         new Point(mirrorWidth / 2 - 5, mirrorY1 + 0.1, mirrorZ + mirrorHeight - 5),
-                        new Point(-mirrorWidth / 2 + 5, mirrorY1 + 0.1, mirrorZ + mirrorHeight - 5)
-                ).setEmission(mirrorColor).setMaterial(mirrorMat)
+                        new Point(-mirrorWidth / 2 + 5, mirrorY1 + 0.1, mirrorZ + mirrorHeight - 5))
+                        .setEmission(mirrorColor).setMaterial(mirrorMat)
         );
 
-        // Mirror 2 (at y = mirrorY2)
+        // Gold corner triangles for mirror 1
         scene.geometries.add(
-                // Frame
-                new Polygon(
-                        new Point(-mirrorWidth / 2, mirrorY2, mirrorZ),
+                new Triangle(new Point(-mirrorWidth / 2, mirrorY1 + 0.11, mirrorZ),
+                        new Point(-mirrorWidth / 2 + 10, mirrorY1 + 0.11, mirrorZ),
+                        new Point(-mirrorWidth / 2, mirrorY1 + 0.11, mirrorZ + 10))
+                        .setEmission(gold).setMaterial(goldMat),
+                new Triangle(new Point(mirrorWidth / 2, mirrorY1 + 0.11, mirrorZ),
+                        new Point(mirrorWidth / 2 - 10, mirrorY1 + 0.11, mirrorZ),
+                        new Point(mirrorWidth / 2, mirrorY1 + 0.11, mirrorZ + 10))
+                        .setEmission(gold).setMaterial(goldMat),
+                new Triangle(new Point(-mirrorWidth / 2, mirrorY1 + 0.11, mirrorZ + mirrorHeight),
+                        new Point(-mirrorWidth / 2 + 10, mirrorY1 + 0.11, mirrorZ + mirrorHeight),
+                        new Point(-mirrorWidth / 2, mirrorY1 + 0.11, mirrorZ + mirrorHeight - 10))
+                        .setEmission(gold).setMaterial(goldMat),
+                new Triangle(new Point(mirrorWidth / 2, mirrorY1 + 0.11, mirrorZ + mirrorHeight),
+                        new Point(mirrorWidth / 2 - 10, mirrorY1 + 0.11, mirrorZ + mirrorHeight),
+                        new Point(mirrorWidth / 2, mirrorY1 + 0.11, mirrorZ + mirrorHeight - 10))
+                        .setEmission(gold).setMaterial(goldMat)
+        );
+
+        // Mirror 2
+        scene.geometries.add(
+                new Polygon(new Point(-mirrorWidth / 2, mirrorY2, mirrorZ),
                         new Point(mirrorWidth / 2, mirrorY2, mirrorZ),
                         new Point(mirrorWidth / 2, mirrorY2, mirrorZ + mirrorHeight),
-                        new Point(-mirrorWidth / 2, mirrorY2, mirrorZ + mirrorHeight)
-                ).setEmission(frameColor).setMaterial(frameMat),
-                // Mirror surface
-                new Polygon(
-                        new Point(-mirrorWidth / 2 + 5, mirrorY2 - 0.1, mirrorZ + 5),
+                        new Point(-mirrorWidth / 2, mirrorY2, mirrorZ + mirrorHeight))
+                        .setEmission(frameColor).setMaterial(frameMat),
+                new Polygon(new Point(-mirrorWidth / 2 + 5, mirrorY2 - 0.1, mirrorZ + 5),
                         new Point(mirrorWidth / 2 - 5, mirrorY2 - 0.1, mirrorZ + 5),
                         new Point(mirrorWidth / 2 - 5, mirrorY2 - 0.1, mirrorZ + mirrorHeight - 5),
-                        new Point(-mirrorWidth / 2 + 5, mirrorY2 - 0.1, mirrorZ + mirrorHeight - 5)
-                ).setEmission(mirrorColor).setMaterial(mirrorMat)
+                        new Point(-mirrorWidth / 2 + 5, mirrorY2 - 0.1, mirrorZ + mirrorHeight - 5))
+                        .setEmission(mirrorColor).setMaterial(mirrorMat)
         );
 
-        // Person parameters (centered at y=0, z=ground)
+        // Gold triangles for mirror 2
+        scene.geometries.add(
+                new Triangle(new Point(-mirrorWidth / 2, mirrorY2 - 0.11, mirrorZ),
+                        new Point(-mirrorWidth / 2 + 10, mirrorY2 - 0.11, mirrorZ),
+                        new Point(-mirrorWidth / 2, mirrorY2 - 0.11, mirrorZ + 10))
+                        .setEmission(gold).setMaterial(goldMat),
+                new Triangle(new Point(mirrorWidth / 2, mirrorY2 - 0.11, mirrorZ),
+                        new Point(mirrorWidth / 2 - 10, mirrorY2 - 0.11, mirrorZ),
+                        new Point(mirrorWidth / 2, mirrorY2 - 0.11, mirrorZ + 10))
+                        .setEmission(gold).setMaterial(goldMat),
+                new Triangle(new Point(-mirrorWidth / 2, mirrorY2 - 0.11, mirrorZ + mirrorHeight),
+                        new Point(-mirrorWidth / 2 + 10, mirrorY2 - 0.11, mirrorZ + mirrorHeight),
+                        new Point(-mirrorWidth / 2, mirrorY2 - 0.11, mirrorZ + mirrorHeight - 10))
+                        .setEmission(gold).setMaterial(goldMat),
+                new Triangle(new Point(mirrorWidth / 2, mirrorY2 - 0.11, mirrorZ + mirrorHeight),
+                        new Point(mirrorWidth / 2 - 10, mirrorY2 - 0.11, mirrorZ + mirrorHeight),
+                        new Point(mirrorWidth / 2, mirrorY2 - 0.11, mirrorZ + mirrorHeight - 10))
+                        .setEmission(gold).setMaterial(goldMat)
+        );
+
+
+        // --- Person Parameters ---
         double personY = 0;
         double personZ = 10;
         double bodyHeight = 80;
         double bodyWidth = 20;
         double bodyDepth = 10;
         double legHeight = 40;
-        double legRadius = 5;
+        double legWidth = 5 * 2;
+        double legDepth = 8;
         double armLength = 35;
-        double armRadius = 4;
-        double headRadius = 13;
-        double neckRadius = 4;
+        double armWidth = 4 * 2;
+        double armDepth = 6;
         double neckHeight = 8;
+        double neckWidth = 4 * 2;
+        double neckDepth = 6;
         double shoeRadius = 6;
+        double headRadius = 13;
 
-
-        // Colors
-        Color skinColor = new Color(80, 30, 30);
+        Color skinColor = new Color(255, 219, 172); // בהיר
         Color blue = new Color(30, 60, 180);
         Color green = new Color(40, 180, 40);
         Color black = new Color(20, 20, 20);
-        Color white = new Color(240, 240, 240);
-
-        // Materials
         Material matte = new Material().setKD(0.7).setKS(0.1).setNShininess(20);
 
-        // Shoes (spheres)
-        scene.geometries.add(
-                new Sphere(new Point(-bodyWidth / 3, personY, personZ), shoeRadius).setEmission(black).setMaterial(matte),
-                new Sphere(new Point(bodyWidth / 3, personY, personZ), shoeRadius).setEmission(black).setMaterial(matte)
-        );
-
-        // Legs (blue cylinders)
-        scene.geometries.add(
-                new Cylinder(legRadius, new Ray(new Point(-bodyWidth / 3, personY, personZ + shoeRadius), new Vector(0, 0, 1)), legHeight).setEmission(blue).setMaterial(matte),
-                new Cylinder(legRadius, new Ray(new Point(bodyWidth / 3, personY, personZ + shoeRadius), new Vector(0, 0, 1)), legHeight).setEmission(blue).setMaterial(matte)
-        );
-
-        // Body (green box)
-        // Body (green box, full 3D rectangular prism)
         double bodyZ = personZ + shoeRadius + legHeight;
-        Material shirtMat = new Material().setKD(0.7).setKS(0.1).setNShininess(20).setKT(0); // Opaque green
-
+        double z2 = bodyZ + bodyHeight;
         double x1 = -bodyWidth / 2, x2 = bodyWidth / 2;
         double y1 = personY - bodyDepth / 2, y2 = personY + bodyDepth / 2;
-        double z2 = bodyZ + bodyHeight;
 
-        // Shirt color and material (same as arms)
 
-        // Shirt as a closed box (all 6 faces)
+
+        // זרועות (4 מלבנים לכל צד)
+
+        double armZ = z2 - 10;
+
+        for (int i = -1; i <= 1; i += 2) {
+            double xArm = i * bodyWidth / 2;
+            double xA1 = (i == -1) ? xArm - armLength : xArm;
+            double xA2 = (i == -1) ? xArm : xArm + armLength;
+            double yA1 = personY - armDepth / 2, yA2 = personY + armDepth / 2;
+            double zA1 = armZ - armWidth / 2, zA2 = armZ + armWidth / 2;
+
+            // Front
+            scene.geometries.add(new Polygon(
+                    new Point(xA1, yA1, zA1), new Point(xA2, yA1, zA1),
+                    new Point(xA2, yA1, zA2), new Point(xA1, yA1, zA2)
+            ).setEmission(new Color(40, 180, 40)).setMaterial(matte));
+
+            // Back
+            scene.geometries.add(new Polygon(
+                    new Point(xA1, yA2, zA1), new Point(xA2, yA2, zA1),
+                    new Point(xA2, yA2, zA2), new Point(xA1, yA2, zA2)
+            ).setEmission(new Color(40, 180, 40)).setMaterial(matte));
+
+            // Top
+            scene.geometries.add(new Polygon(
+                    new Point(xA1, yA1, zA2), new Point(xA2, yA1, zA2),
+                    new Point(xA2, yA2, zA2), new Point(xA1, yA2, zA2)
+            ).setEmission(new Color(40, 180, 40)).setMaterial(matte));
+
+            // Bottom
+            scene.geometries.add(new Polygon(
+                    new Point(xA1, yA1, zA1), new Point(xA2, yA1, zA1),
+                    new Point(xA2, yA2, zA1), new Point(xA1, yA2, zA1)
+            ).setEmission(new Color(40, 180, 40)).setMaterial(matte));
+        }
+
+
+
+
+
+        // --- Person Parameters ---
+// Add a grass plane under the feet and mirrors
         scene.geometries.add(
-                // Front (chest)
-                new Polygon(
-                        new Point(x1, y1, bodyZ), new Point(x2, y1, bodyZ), new Point(x2, y2, bodyZ), new Point(x1, y2, bodyZ)
-                ).setEmission(green).setMaterial(shirtMat),
-                // Back
-                new Polygon(
-                        new Point(x1, y1, z2), new Point(x2, y1, z2), new Point(x2, y2, z2), new Point(x1, y2, z2)
-                ).setEmission(green).setMaterial(shirtMat),
-                // Left
-                new Polygon(
-                        new Point(x1, y1, bodyZ), new Point(x1, y2, bodyZ), new Point(x1, y2, z2), new Point(x1, y1, z2)
-                ).setEmission(green).setMaterial(shirtMat),
-                // Right
-                new Polygon(
-                        new Point(x2, y1, bodyZ), new Point(x2, y2, bodyZ), new Point(x2, y2, z2), new Point(x2, y1, z2)
-                ).setEmission(green).setMaterial(shirtMat),
-                // Top (shoulders)
-                new Polygon(
-                        new Point(x1, y2, bodyZ), new Point(x2, y2, bodyZ), new Point(x2, y2, z2), new Point(x1, y2, z2)
-                ).setEmission(green).setMaterial(shirtMat),
-                // Bottom
-                new Polygon(
-                        new Point(x1, y1, bodyZ), new Point(x2, y1, bodyZ), new Point(x2, y1, z2), new Point(x1, y1, z2)
-                ).setEmission(green).setMaterial(shirtMat)
+                new Plane(new Point(0, 0, -50), new Vector(0, 0, 1))
+                        .setEmission(new Color(34, 139, 34))  // Grass green color
+                        .setMaterial(new Material().setKD(0.5).setKS(0.1).setNShininess(20))
         );
 
-        // Arms (cylinders, left and right)
-        double armZ = bodyZ + bodyHeight * 0.7;
+// Right arm (4 boxes)
+        for (int i = 1; i <= 1; i++) {
+            double xArm = i * bodyWidth / 2;
+            double xA1 = xArm - armLength, xA2 = xArm;
+            double yA1 = personY - armDepth / 2, yA2 = personY + armDepth / 2;
+            double zA1 = armZ - armWidth / 2, zA2 = armZ + armWidth / 2;
+            // Front
+            scene.geometries.add(new Polygon(
+                    new Point(xA1, yA1, zA1), new Point(xA2, yA1, zA1),
+                    new Point(xA2, yA1, zA2), new Point(xA1, yA1, zA2)
+            ).setEmission(green).setMaterial(matte));
+            // Back
+            scene.geometries.add(new Polygon(
+                    new Point(xA1, yA2, zA1), new Point(xA2, yA2, zA1),
+                    new Point(xA2, yA2, zA2), new Point(xA1, yA2, zA2)
+            ).setEmission(green).setMaterial(matte));
+            // Top
+            scene.geometries.add(new Polygon(
+                    new Point(xA1, yA1, zA2), new Point(xA2, yA1, zA2),
+                    new Point(xA2, yA2, zA2), new Point(xA1, yA2, zA2)
+            ).setEmission(green).setMaterial(matte));
+            // Bottom
+            scene.geometries.add(new Polygon(
+                    new Point(xA1, yA1, zA1), new Point(xA2, yA1, zA1),
+                    new Point(xA2, yA2, zA1), new Point(xA1, yA2, zA1)
+            ).setEmission(green).setMaterial(matte));
+        }
+        // כפות ידיים
         scene.geometries.add(
-                new Cylinder(armRadius, new Ray(new Point(-bodyWidth / 2, personY, armZ), new Vector(-1, 0, 0)), armLength).setEmission(green).setMaterial(matte),
-                new Cylinder(armRadius, new Ray(new Point(bodyWidth / 2, personY, armZ), new Vector(1, 0, 0)), armLength).setEmission(green).setMaterial(matte)
+                new Sphere(new Point(-bodyWidth / 2 - armLength, personY, armZ), 5).setEmission(skinColor).setMaterial(matte),
+                new Sphere(new Point(bodyWidth / 2 + armLength, personY, armZ), 5).setEmission(skinColor).setMaterial(matte)
         );
 
-        // Hands (skin spheres)
+        // צוואר (4 מלבנים)
+        double neckZ1 = z2;
+        double neckZ2 = neckZ1 + neckHeight;
+        double xN1 = -neckWidth / 2, xN2 = neckWidth / 2;
+        double yN1 = personY - neckDepth / 2, yN2 = personY + neckDepth / 2;
         scene.geometries.add(
-                new Sphere(new Point(-bodyWidth / 2 - armLength, personY, armZ), armRadius * 1.2).setEmission(skinColor).setMaterial(matte),
-                new Sphere(new Point(bodyWidth / 2 + armLength, personY, armZ), armRadius * 1.2).setEmission(skinColor).setMaterial(matte)
+                new Polygon(new Point(xN1, yN1, neckZ1), new Point(xN2, yN1, neckZ1), new Point(xN2, yN1, neckZ2), new Point(xN1, yN1, neckZ2)).setEmission(skinColor).setMaterial(matte),
+                new Polygon(new Point(xN1, yN2, neckZ1), new Point(xN2, yN2, neckZ1), new Point(xN2, yN2, neckZ2), new Point(xN1, yN2, neckZ2)).setEmission(skinColor).setMaterial(matte),
+                new Polygon(new Point(xN1, yN1, neckZ1), new Point(xN1, yN2, neckZ1), new Point(xN1, yN2, neckZ2), new Point(xN1, yN1, neckZ2)).setEmission(skinColor).setMaterial(matte),
+                new Polygon(new Point(xN2, yN1, neckZ1), new Point(xN2, yN2, neckZ1), new Point(xN2, yN2, neckZ2), new Point(xN2, yN1, neckZ2)).setEmission(skinColor).setMaterial(matte)
         );
 
-        // Neck (small skin cylinder)
-        double neckZ = bodyZ + bodyHeight;
-        scene.geometries.add(
-                new Cylinder(neckRadius, new Ray(new Point(0, personY, neckZ), new Vector(0, 0, 1)), neckHeight).setEmission(skinColor).setMaterial(matte)
-        );
+        // ראש
+        double headZ = neckZ2 + headRadius;
+        scene.geometries.add(new Sphere(new Point(0, personY, headZ), headRadius).setEmission(skinColor).setMaterial(matte));
 
-        // Head (skin sphere)
-        double headZ = neckZ + neckHeight + headRadius;
-        scene.geometries.add(
-                new Sphere(new Point(0, personY, headZ), 13).setEmission(skinColor).setMaterial(matte)
-        );
+        // עיניים + אישונים
         double eyeZ = headZ + 5;
         double eyeY = personY + 11;
         double eyeX = 7;
         double eyeRadius = 4;
         double pupilRadius = 3;
         double pupilForwardOffset = 1.5;
-        Material pupilmat = new Material().setKD(0.1).setKS(0.9).setNShininess(100).setKR(0.4); // Opaque black
+        Material pupilmat = new Material().setKD(0.1).setKS(0.9).setNShininess(100).setKR(0.4);
+        Color white = new Color(240, 240, 240);
 
         scene.geometries.add(
-                // Eyeballs (white spheres)
                 new Sphere(eyeRadius, new Point(-eyeX, eyeY, eyeZ)).setEmission(white).setMaterial(matte),
                 new Sphere(eyeRadius, new Point(eyeX, eyeY, eyeZ)).setEmission(white).setMaterial(matte),
-
-                // Pupils (black spheres)
                 new Sphere(pupilRadius, new Point(-eyeX, eyeY + pupilForwardOffset, eyeZ)).setEmission(black).setMaterial(pupilmat),
                 new Sphere(pupilRadius, new Point(eyeX, eyeY + pupilForwardOffset, eyeZ)).setEmission(black).setMaterial(pupilmat)
         );
 
-
-        // Kippah (small blue sphere on top back of head)
+        // כיפה
         double kippahRadius = 6;
         scene.geometries.add(
-                new Sphere(
-                        new Point(0, personY - headRadius + kippahRadius / 2, headZ + headRadius - kippahRadius / 2), 6).setEmission(blue).setMaterial(matte)
+                new Sphere(new Point(0, personY - headRadius + kippahRadius / 2, headZ + headRadius - kippahRadius / 2), kippahRadius).setEmission(blue).setMaterial(matte)
         );
 
 
-
-        // Lighting
-        scene.lights.add(
-                new PointLight(new Color(255, 255 ,255), new Point(30, 100, 300)).setKL(0.0005).setKQ(0.0001)
-        );
-
-        // floor
+        // Shoes
         scene.geometries.add(
-                new Plane(new Point(0,0,-50), new Vector(0, 0, 1)
-                ).setEmission(new Color(200, 200, 200)).setMaterial(new Material().setKD(0.5).setKS(0.1).setNShininess(20).setKR(0.5)
-                ));
+                new Sphere(new Point(-bodyWidth / 3, personY, personZ), shoeRadius).setEmission(black).setMaterial(matte),
+                new Sphere(new Point(bodyWidth / 3, personY, personZ), shoeRadius).setEmission(black).setMaterial(matte)
+        );
 
-        // Camera: just behind the eyes, looking at the mirror at y=mirrorY2, with a small vpDistance
-        Point cameraLoc = new Point(-50, eyeY + 8, eyeZ);
-        Point lookAt = new Point(50, mirrorY2, eyeZ); // looking at the far mirror
-        Vector up = new Vector(0, 0, 1);
+        // Legs: 4 boxes each (8 total)
+        for (int i = -1; i <= 1; i += 2) {
+            double xLeg = i * bodyWidth / 3;
+            double zBase = personZ + shoeRadius;
+            double xL1 = xLeg - legWidth / 2, xL2 = xLeg + legWidth / 2;
+            double yL1 = personY - legDepth / 2, yL2 = personY + legDepth / 2;
+            double zL2 = zBase + legHeight;
+            // Front
+            scene.geometries.add(new Polygon(
+                    new Point(xL1, yL1, zBase), new Point(xL2, yL1, zBase),
+                    new Point(xL2, yL1, zL2), new Point(xL1, yL1, zL2)
+            ).setEmission(blue).setMaterial(matte));
+            // Back
+            scene.geometries.add(new Polygon(
+                    new Point(xL1, yL2, zBase), new Point(xL2, yL2, zBase),
+                    new Point(xL2, yL2, zL2), new Point(xL1, yL2, zL2)
+            ).setEmission(blue).setMaterial(matte));
+            // Sides
+            scene.geometries.add(new Polygon(
+                    new Point(xL1, yL1, zBase), new Point(xL1, yL2, zBase),
+                    new Point(xL1, yL2, zL2), new Point(xL1, yL1, zL2)
+            ).setEmission(blue).setMaterial(matte));
+            scene.geometries.add(new Polygon(
+                    new Point(xL2, yL1, zBase), new Point(xL2, yL2, zBase),
+                    new Point(xL2, yL2, zL2), new Point(xL2, yL1, zL2)
+            ).setEmission(blue).setMaterial(matte));
+        }
 
+        // Body (6 sides)
+        Material shirtMat = new Material().setKD(0.7).setKS(0.1).setNShininess(20);
+        scene.geometries.add(
+                new Polygon(new Point(x1, y1, bodyZ), new Point(x2, y1, bodyZ), new Point(x2, y2, bodyZ), new Point(x1, y2, bodyZ)).setEmission(green).setMaterial(shirtMat),
+                new Polygon(new Point(x1, y1, z2), new Point(x2, y1, z2), new Point(x2, y2, z2), new Point(x1, y2, z2)).setEmission(green).setMaterial(shirtMat),
+                new Polygon(new Point(x1, y1, bodyZ), new Point(x1, y2, bodyZ), new Point(x1, y2, z2), new Point(x1, y1, z2)).setEmission(green).setMaterial(shirtMat),
+                new Polygon(new Point(x2, y1, bodyZ), new Point(x2, y2, bodyZ), new Point(x2, y2, z2), new Point(x2, y1, z2)).setEmission(green).setMaterial(shirtMat),
+                new Polygon(new Point(x1, y2, bodyZ), new Point(x2, y2, bodyZ), new Point(x2, y2, z2), new Point(x1, y2, z2)).setEmission(green).setMaterial(shirtMat),
+                new Polygon(new Point(x1, y1, bodyZ), new Point(x2, y1, bodyZ), new Point(x2, y1, z2), new Point(x1, y1, z2)).setEmission(green).setMaterial(shirtMat)
+        );
+
+        // כתפיים: כדורים
+        scene.geometries.add(
+                new Sphere(new Point(x1, personY, z2 - 4), 5).setEmission(green).setMaterial(matte),
+                new Sphere(new Point(x2, personY, z2 - 4), 5).setEmission(green).setMaterial(matte)
+        );
+
+
+        // מצלמה
         Camera camera = Camera.getBuilder()
                 .setRayTracer(scene, RayTracerType.SIMPLE)
-                .setLocation(cameraLoc)
-                .setDirection(lookAt, up)
+                .setLocation(new Point(-50, eyeY + 8, eyeZ))
+                .setDirection(new Point(50, mirrorY2, eyeZ), new Vector(0, 0, 1))
                 .setVpSize(100, 150)
                 .setVpDistance(30)
                 .setResolution(1000, 1000)
-                .setFocalDistance(cameraLoc.distance(lookAt))
-                .setApertureRadius(2.0)
-                .setDofSamples(5)
-//                .setAaSamples(64)
-                .setASSdepth(3)
                 .setMultithreading(8)
                 .setDebugPrint(1.2)
                 .build();
 
-        camera.renderImage()
-                .writeToImage("DOFinfiniteMirrorsWithPersonASS_1");
+        camera.renderImage().writeToImage("infiniteMirrors2");
     }
+
 
     @Test
     void testDOFScene() {
@@ -292,7 +386,7 @@ public class DofTests {
 
         // Main focal point object - metallic sphere in the center
         scene.geometries.add(
-                new Sphere(new Point(0, 0, -50), 15)
+                new Sphere(new Point(0, 0, -100), 15)
                         .setEmission(new Color(60, 60, 90))  // Reduced emission
                         .setMaterial(metallic)
         );
@@ -300,7 +394,7 @@ public class DofTests {
         // Glass spheres arranged in front and behind the main sphere
         for (int i = -2; i <= 2; i++) {
             scene.geometries.add(
-                    new Sphere(new Point(-20 + i*10, -5, -20), 5)
+                    new Sphere(new Point(-20 + i*10, -5, -70), 5)
                             .setEmission(new Color(100, 100, 110))  // Reduced emission
                             .setMaterial(glass),
                     new Sphere(new Point(20 - i*10, 5, -130), 5)
@@ -510,7 +604,7 @@ public class DofTests {
                 //.setASSdepth(2)
                 .build();
 
-        camera.renderImage().writeToImage("FinalAdvancedScene");
+        camera.renderImage().writeToImage("FinalAdvancedSceneDOFASS");
     }
 
 }

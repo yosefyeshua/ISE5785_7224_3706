@@ -59,6 +59,10 @@ public class Color {
    public static final Color YELLOW = new Color(255, 255, 0);
 
 
+    /** Threshold for color equality - two colors are equal if their RGB components differ by less than this value */
+   public static int COLOR_EQALITY_THRESHOLD = 5;
+
+
    /** Default constructor - to generate Black Color (privately) */
    private Color() { rgb = Double3.ZERO; }
 
@@ -159,9 +163,9 @@ public class Color {
    public boolean equals(Object obj) {
       if (this == obj) return true;
       return (obj instanceof Color other)
-              && (Math.abs(rgb.d1() - other.rgb.d1()) < 5)
-              && (Math.abs(rgb.d2() - other.rgb.d2()) < 5)
-              && (Math.abs(rgb.d3() - other.rgb.d3()) < 5);
+              && (Math.abs(rgb.d1() - other.rgb.d1()) < COLOR_EQALITY_THRESHOLD)
+              && (Math.abs(rgb.d2() - other.rgb.d2()) < COLOR_EQALITY_THRESHOLD)
+              && (Math.abs(rgb.d3() - other.rgb.d3()) < COLOR_EQALITY_THRESHOLD);
    }
 
    @Override
