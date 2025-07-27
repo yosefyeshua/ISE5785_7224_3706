@@ -159,9 +159,9 @@ public class Color {
    public boolean equals(Object obj) {
       if (this == obj) return true;
       return (obj instanceof Color other)
-              && (Math.abs(rgb.d1() - other.rgb.d1()) < 1)
-              && (Math.abs(rgb.d2() - other.rgb.d2()) < 1)
-              && (Math.abs(rgb.d3() - other.rgb.d3()) < 1);
+              && (Math.abs(rgb.d1() - other.rgb.d1()) < 5)
+              && (Math.abs(rgb.d2() - other.rgb.d2()) < 5)
+              && (Math.abs(rgb.d3() - other.rgb.d3()) < 5);
    }
 
    @Override

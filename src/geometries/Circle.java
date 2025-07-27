@@ -25,7 +25,7 @@ public class Circle extends RadialGeometry{
      * @param normal the normal vector to the plane of the circle
      * @throws IllegalArgumentException if center or normal is null
      */
-    protected Circle(double radius, Point center, Vector normal) {
+    public Circle(double radius, Point center, Vector normal) {
         super(radius);
         if (center == null || normal == null) {
             throw new IllegalArgumentException("Center and normal cannot be null");

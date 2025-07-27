@@ -337,7 +337,7 @@ public class Camera implements Cloneable {
         Color c0 = rayTracer.traceRay(r0);
         if(dofSamples > 0 && apertureRadius > 0 && focalDistance > 0)
             c0 = calcDOFcolor(r0);
-        if (depth >= 4) {
+        if (depth >= aSSdepth) {
             return c0;
         }
 
